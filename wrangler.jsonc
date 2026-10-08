@@ -1,0 +1,86 @@
+/**
+ * KONSTRIVO PRO — Cloudflare configuration (ADAPTER LAYER ONLY).
+ *
+ * Migration stage: Containers (full Linux + Node 22 running the UNCHANGED Express app).
+ *   /api/*   → Worker routes into `KonstrivoContainer` (see worker-entry.ts).
+ *   static   → Workers Static Assets (`./dist`, SPA fallback) — the same `vite build`
+ *              output deployed today.
+ * Scope lock:
+ *   - No Supabase / routes / services / DB schema / features / auth / payments changes.
+ *   - The container connects to Supabase DIRECTLY over TCP with its own `DATABASE_URL`
+ *     (Hyperdrive is a Workers-runtime binding and is NOT usable inside a container).
+ *   - Vercel (`vercel.json` + `vercel-entry.ts` + `api/index.cjs`) stays untouched and
+ *     remains the active fallback until an explicit cutover decision.
+ *
+ * Secrets are NOT stored here. They must be uploaded with `npx wrangler secret put <NAME>`
+ * and are injected into the container by the Worker at container start (`envVars` in
+ * worker-entry.ts): JWT_SECRET (>=32) · CORS_ALLOWED_ORIGINS · PUBLIC_APP_URL ·
+ * ADMIN_EMAIL · ADMIN_PASSWORD · EMAILJS_* · GEMINI_API_KEY · FLOUCI_* · CIDB_API_* ·
+ * DATABASE_URL. NEVER set TEST_DATABASE_URL in production (it enables the test guards).
+ */
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "konstrivo-pro-web",
+
+  // Tiny router only: `/api/*` → Container, everything else → Static Assets.
+  // Wrangler bundles THIS file (safe — it no longer bundles the Express app, which is
+  // what previously broke iconv-lite's internal requires with `(disabled)` stubs).
+  "main": "./worker-entry.ts",
+
+  // >= 2026-08-04 enables nodejs_compat / nodejs_compat_v2 by default (required by the
+  // `@cloudflare/containers` runtime). Kept explicit for older tooling.
+  "compatibility_date": "2026-09-16",
+  "compatibility_flags": ["nodejs_compat"],
+
+  // ── Frontend (unchanged): the exact same `vite build` output deployed today.
+  //    `binding: ASSETS` exposes it to the router in worker-entry.ts.
+  //    `single-page-application` replaces the removed `express.static` + `res.sendFile`
+  //    fallback: unknown non-asset paths are served as /index.html (navigation requests
+  //    only), while /api/* keeps reaching the container through the Worker.
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application"
+  },
+
+  // ── Backend container: full Linux + Node 22 runtime running `dist/server.cjs` UNCHANGED.
+  //    `instance_type: standard-1` = 1/2 vCPU · 4 GiB RAM · 8 GB disk (image size limit).
+  //    `max_instances: 2` → light burst capacity; scale-to-zero via `sleepAfter` (10m).
+  "containers": [
+    {
+      "class_name": "KonstrivoContainer",
+      "image": "./Dockerfile",
+      "instance_type": "standard-1",
+      "max_instances": 2
+    }
+  ],
+
+  // Containers are backed by Durable Objects (official pattern): the binding name must
+  // match the Worker code (`env.KONSTRIVO_CONTAINER`) and the class must match `class_name`.
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "KONSTRIVO_CONTAINER",
+        "class_name": "KonstrivoContainer"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["KonstrivoContainer"]
+    }
+  ],
+
+  // Text vars (NOT secrets). NODE_ENV=production keeps the app fail-CLOSED
+  // (JWT_SECRET >= 32 chars + CORS_ALLOWED_ORIGINS guards) and keeps the Vite dev
+  // branch of server.ts disabled. Required because with `no_bundle` the value is
+  // resolved at runtime from this binding instead of being replaced at build time.
+  "vars": {
+    "NODE_ENV": "production"
+  },
+
+  "observability": {
+    "enabled": true
+  }
+}

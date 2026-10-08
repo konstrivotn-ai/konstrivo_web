@@ -1,0 +1,6 @@
+title,product_url,image_url,price,unit,brand,availability,reference_link,description
+"Peinture acrylique blanche 10L","https://batimax.example/produit/peinture-acrylique-blanche-10l","https://cdn.batimax.example/img/peinture-10l.jpg","245.000","L","Batimax","En stock","https://batimax.example/categorie/peinture","Lessivable, aspect mat"
+"Enduit de rebouchage 7Kg","https://batimax.example/produit/enduit-rebouchage-7kg","https://cdn.batimax.example/img/enduit-7kg.jpg","14.900","Sac","Batimax","En stock","https://batimax.example/categorie/enduits","Séchage rapide"
+"Profilé aluminium 3m","https://batimax.example/produit/profile-aluminium-3m","https://cdn.batimax.example/img/profilé-3m.jpg","39.500","U","Batimax Pro","Stock faible","https://batimax.example/categorie/aluminium","Réalisation de cloisons"
+"Guimpe placo 300cm","https://batimax.example/produit/guimpe-placo-300cm","https://cdn.batimax.example/img/guimpe-300.jpg","6.250","U","Comaf","En stock","https://batimax.example/categorie/placo","Bande armée"
+"Colle carrelage 25Kg","https://batimax.example/produit/colle-carrelage-25kg","https://cdn.batimax.example/img/colle-25.jpg","https://batimax.example/produit/colle-carrelage-25kg","Sac","Batimax","En stock","https://batimax.example/categorie/carrelage","Prix affiché en page seulement"

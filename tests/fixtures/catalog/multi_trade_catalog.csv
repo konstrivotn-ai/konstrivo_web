@@ -1,0 +1,7 @@
+Reference,Nom_Materiau,Metier,Libelle_Metier,Categorie,Unite,Prix_HT_TND,Date_debut
+CAR-SSF-100,Rocaille de granite 0/10,carrelage,Carrelage & faience,Gros oeuvre,Tonne,78.000,2026-03-01
+CAR-COL-40,Ciment colles 40Kg,carrelage,Carrelage & faience,Colles & mortiers,Sac,17.500,2026-03-01
+ALU-PAN-3030,Panneau aluminium 125/3030,menuiserie_alu,Menuiserie aluminium,Profilés,U,65.000,2026-03-01
+ALU-VIT-06,Double vitrage 4/16/4 1m2,menuiserie_alu,Menuiserie aluminium,Vitrage,m2,215.000,2026-03-01
+TER-FOU-EXC,Terrassement en déblais roche,terrassement,Terrassement & VRD,Fouilles,m3,32.500,2026-03-01
+PEI-ACO-10,Acrylique murale blanc 10L,peinture,Peinture & finition,Peinture murale,L,245.000,2026-03-01

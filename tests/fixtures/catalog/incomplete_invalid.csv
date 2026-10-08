@@ -1,0 +1,6 @@
+product_id,product_name,Unité,Valeur_TTC,Prix_Net,Date_fin_validite,Monnaie
+CAR-COL-25,Colle carrelage blanc 25Kg,Sac,22.000,18.333,2026-06-15,TND
+CAR-JOI-05,Joint de dilatation 5mm,Rouleau,9.600,8.000,2026-12-31,TND
+PLO-RRD-20,Regard d écoulement 20L,Unité,65.000,54.167,99/99/9999,TND
+XXX-NEG-01,Prix négatif au lieu du débit,U,-12.500,-10.417,2026-06-30,TND
+ISO-PS-10,Polystyrène expansé 10mm,m2,11.900,9.917,2026-09-20,USD

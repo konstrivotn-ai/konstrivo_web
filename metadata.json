@@ -1,0 +1,6 @@
+{
+  "name": "KONSTRIVO - BTP & Placo Tunisie",
+  "description": "Plateforme SaaS BTP 2026: Calculateur métré multicritères, gestion de chantiers, annuaire des artisans, marketplace matériaux, maintenance d'urgence et synchronisation mobile.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

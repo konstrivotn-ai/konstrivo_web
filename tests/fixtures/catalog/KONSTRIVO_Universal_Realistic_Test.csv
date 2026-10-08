@@ -1,0 +1,41 @@
+item_ref,name_en,nom_fr,name_ar,current_cost,selling_unit,department,product_group,currency_code,market,data_source,product_page
+PLB-001,PVC Pipe 50mm,Tube PVC 50mm,أنبوب PVC 50مم,14.50,meter,PLOMBERIE,Pipes,TND,TN,Batimax,https://www.batimax.tn/p/plb-001
+PLB-002,Chrome Mixer Tap,Mitigeur lavabo chromé,خلاط كروم,"1250,00",piece,PLOMBERIE,Taps & Mixers,TND,TN,Grohe Tunisie,https://www.grohe-tn.example/p/plb-002
+PLB-003,PPR Elbow 25mm,Coude PPR 25mm,كوع PPR 25مم,2.350,piece,PLOMBERIE,Fittings,TND,TN,PPR Pro,https://www.pprpro.tn/p/plb-003
+PLB-004,Angle Valve 1/2,,صمام زاوية 1/2,8.900,piece,PLOMBERIE,Valves,TND,TN,Batimax,https://www.batimax.tn/p/plb-004
+PLB-005,Flexible Hose 40cm,Flexible 40cm,خرطوم مرن 40سم,6.750,piece,PLOMBERIE,Hoses,TND,TN,Batimax,https://www.batimax.tn/p/plb-005
+PLB-006,Floor Drain 10cm,Siphon de sol 10cm,صفاية أرضية 10سم,,piece,PLOMBERIE,Drains,TND,TN,NDS Tunisie,https://www.nds.tn/p/plb-006
+PLB-007,Ball Valve 3/4,Robinet à boisseau 3/4,صمام كروي 3/4,22.400,piece,PLOMBERIE,Valves,TND,TN,NDS Tunisie,https://www.nds.tn/p/plb-007
+PNT-001,White Acrylic Paint 10L,Peinture acrylique blanche 10L,دهان أبيض 10 لتر,89.900,L,PEINTURE,Paints,TND,TN,Astral Tunisia,https://www.astral.tn/p/pnt-001
+PNT-002,Gel Adhesive 25kg,Colle en pâte 25kg,لاصق جيلي 25كغ,"1 250,50",sac,PEINTURE,Adhesives,TND,TN,Weber Tunisia,https://www.weber-tn.example/p/pnt-002
+PNT-003,Satin Paint 4L,Peinture satinée 4L,دهان ساتان 4 لتر,45.000,L,PEINTURE,Paints,TND,TN,Astral Tunisia,https://www.astral.tn/p/pnt-003
+PNT-004,Undercoat Primer 5L,,دهان أساس 5 لتر,38.250,L,PEINTURE,Primers,TND,TN,Astral Tunisia,https://www.astral.tn/p/pnt-004
+PNT-005,Decorative Plaster 20kg,Enduit décoratif 20kg,جص ديكوري 20كغ,"1250,00",sac,PEINTURE,Plasters,TND,TN,Weber Tunisia,https://www.weber-tn.example/p/pnt-005
+PNT-006,Universal Solvent 5L,Diluant universel 5L,مذيب عالمي 5 لتر,sur devis,L,PEINTURE,Solvents,TND,TN,Astral Tunisia,https://www.astral.tn/p/pnt-006
+PNT-007,Brush Set 5 pcs,Set de pinceaux 5 pièces,طقم فرش 5 قطع,23.500,set,PEINTURE,Tools,TND,TN,Astral Tunisia,https://www.astral.tn/p/pnt-007
+ELC-001,Cable 2.5mm 100m,Câble 2.5mm² 100m,كابل 2.5مم² 100م,230.000,roll,ELECTRICITE,Cables,TND,TN,Socabex,https://www.socabex.tn/p/elc-001
+ELC-002,Single Switch,Interrupteur simple,مفتاح بسيط,4.850,piece,ELECTRICITE,Switches,TND,TN,Legrand Tunisie,https://www.legrand.tn/p/elc-002
+ELC-003,Socket Outlet,,مأخذ توصيل,5.600,piece,ELECTRICITE,Sockets,TND,TN,Legrand Tunisie,https://www.legrand.tn/p/elc-003
+ELC-004,Circuit Breaker 16A,Disjoncteur 16A,قاطع تيار 16A,18.700,piece,ELECTRICITE,Protection,TND,TN,Schneider Tunisie,https://www.se.com/tn/p/elc-004
+ELC-005,LED Panel 60x60,Dalle LED 60x60,لوحة LED 60x60,52.000,piece,ELECTRICITE,Lighting,TND,TN,Philips Tunisie,https://www.philips.tn/p/elc-005
+ELC-006,Junction Box,Boîte de dérivation,علبة تحويل,2.100,piece,ELECTRICITE,Boxes,TND,TN,Socabex,https://www.socabex.tn/p/elc-006
+ELC-007,Spotlight GU10,Spot GU10,كشاف GU10,9.450,piece,ELECTRICITE,Lighting,USD,TN,Philips Tunisie,https://www.philips.tn/p/elc-007
+ELC-008,Cable Tie 200mm,Collier de câble 200mm,رباط كابلات 200مم,0.850,piece,ELECTRICITE,Accessories,TND,TN,Socabex,https://www.socabex.tn/p/elc-008
+PLC-001,BA13 Plasterboard,Plaque de plâtre BA13 1.2x2.5m,لوح جبسي BA13,12.500,unit,PLACO,Plasterboard,TND,TN,Saint-Gobain Tunisie,https://www.saint-gobain.tn/p/plc-001
+PLC-002,Hydro Plasterboard,Plaque hydrofuge verte 1.2x2.5m,لوح أخضر مقاوم للماء,47.800,unit,PLACO,Plasterboard,TND,TN,Saint-Gobain Tunisie,https://www.saint-gobain.tn/p/plc-002
+PLC-003,Metal Rail R48,Rail R48 galvanisé 3m,مجري R48 مجلفن 3م,7.800,ml,PLACO,Framing,TND,TN,Knauf Tunisia,https://www.knauf.tn/p/plc-003
+PLC-004,Corner Bead 3m,,زاوية جبسية 3م,3.200,ml,PLACO,Finishing,TND,TN,Knauf Tunisia,https://www.knauf.tn/p/plc-004
+PLC-005,Filler 25kg,Enduit de rebouchage 25kg,معجون جبسي 25كغ,8.900,sac,PLACO,Fillers,TND,TN,Saint-Gobain Tunisie,https://www.saint-gobain.tn/p/plc-005
+PLC-006,Ceiling Anchor,Suspente pour faux plafond,معلق سقفي,0.650,piece,PLACO,Framing,TND,TN,Knauf Tunisia,https://www.knauf.tn/p/plc-006
+PLC-007,Joint Tape 50m,Bande à joint 50m,شريط مشترك 50م,4.900,unit,PLACO,Jointing,TND,FR,Knauf Tunisia,https://www.knauf.tn/p/plc-007
+CRL-001,Floor Tile 60x60,Carrelage sol 60x60,بلاط أرضي 60x60,32.000,m²,CARRELAGE,Floor Tiles,TND,TN,Ceramica Tunisia,https://www.ceramica.tn/p/crl-001
+CRL-002,Wall Tile 25x40,Faïence murale 25x40,زليج حائطي 25x40,18.500,m²,CARRELAGE,Wall Tiles,TND,TN,Ceramica Tunisia,https://www.ceramica.tn/p/crl-002
+CRL-003,Tile Adhesive 25kg,Colle carrelage 25kg,لاصق تبليط 25كغ,14.750,sac,CARRELAGE,Adhesives,TND,TN,Weber Tunisia,https://www.weber-tn.example/p/crl-003
+CRL-004,,,روفة التبليط 300غ,6.400,piece,CARRELAGE,Grouts,TND,TN,Weber Tunisia,https://www.weber-tn.example/p/crl-004
+CRL-005,Tile Spacer 2mm,Croisillon 2mm,فاصل تبليط 2مم,0.450,piece,CARRELAGE,Accessories,TND,TN,Ceramica Tunisia,https://www.ceramica.tn/p/crl-005
+CRL-006,Marble Step,Marche en marbre,درجة رخام,89.000,ml,CARRELAGE,Marble,TND,TN,Marmyx,https://www.marmyx.tn/p/crl-006
+PLB-008,Copper Pipe 15mm,Tube cuivre 15mm,أنبوب نحاسي 15مم,-8.00,meter,PLOMBERIE,Pipes,TND,TN,Batimax,https://www.batimax.tn/p/plb-008
+PLB-009,Trap 40mm,Siphon lavabo 40mm,صفاية 40مم,7.200,piece,PLOMBERIE,Drains,TND,TN,NDS Tunisie,https://www.nds.tn/p/plb-009
+PNT-008,Paint Roller 25cm,Rouleau 25cm,دحرجة 25سم,5.400,piece,PEINTURE,Tools,TND,TN,Astral Tunisia,https://www.astral.tn/p/pnt-008
+ELC-009,Extension Cord 3m,Rallonge 3m,مغذي ممتد 3م,15.600,piece,ELECTRICITE,Accessories,TND,TN,Legrand Tunisie,https://www.legrand.tn/p/elc-009
+PLC-008,Finishing Knife 300mm,Couteau à enduire 300mm,سكين جبس 300مم,9.900,piece,PLACO,Tools,TND,TN,Knauf Tunisia,https://www.knauf.tn/p/plc-008

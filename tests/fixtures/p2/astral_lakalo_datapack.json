@@ -1,0 +1,93 @@
+{
+  "_schemaNote": "TRIAL DATA PACK — NOT a production artefact. Never imported by app code, never written to Supabase/DB, no migration. Lives under tests/fixtures/p2/ only.",
+  "packId": "P2_TRIAL_ASTRAL_LAKALO",
+  "packKind": "TRIAL_DATA_PACK_NOT_FOR_PRODUCTION",
+  "version": 2,
+  "createdAt": "2026-10-07",
+  "updatedAt": "2026-10-07",
+  "changeLog": [
+    "v1 (P2): initial trial pack — nominal 13 m²/L, PROPOSED_ONLY binding, no DB writes.",
+    "v2 (P2.2): coverage range recorded from the OFFICIAL Astral technical sheet for LAKALO SATINÉ (rendement 11–13 m²/L, PER COAT; 13 kept as NOMINAL, not guaranteed); provenance updated; 2 coats recorded as a PRODUCT-LEVEL APPLICATION RECOMMENDATION only (still NO layers=2 anywhere)."
+  ],
+  "reviewStatus": "PENDING_REVIEW",
+  "_reviewStatusNote": "Pack-level gate ONLY. The current schema has NO review_status column on trade_metre_elements, and material_prices.review_status only accepts pending|reviewed|rejected|published — so 'PENDING_REVIEW' is deliberately NOT mappable to any DB write today (that is why the pack is non-publishable).",
+  "publishable": false,
+  "target": {
+    "product": {
+      "nameFr": "Astral Lakalo",
+      "brand": "Astral"
+    },
+    "trade": "peinture",
+    "workType": "mur_interieur",
+    "market": "TN",
+    "currency": "TND"
+  },
+  "provenance": {
+    "source": "OFFICIAL_ASTRAL_TECHNICAL_SHEET_LAKALO_SATINE",
+    "origin": "Product facts (rendement 11–13 m²/L, per coat) read from the OFFICIAL Astral technical sheet for LAKALO SATINÉ — Astral Tunisia identifies Lakalo as an official product. Element structure still mirrored from the CURRENT CODE (src/data/metreElements.ts registry entry peinture/mur_interieur). Read-only session: 0 INSERT/UPDATE/DELETE, 0 migrations, 0 Supabase calls.",
+    "technicalSheet": {
+      "brand": "Astral",
+      "product": "LAKALO SATINÉ",
+      "document": "Official Astral technical sheet",
+      "rendementRange": "11–13 m²/L",
+      "perCoat": true,
+      "officiallyIdentifiedProduct": true
+    },
+    "officialMaterialCatalogMatch": null,
+    "officialPriceMatch": null,
+    "supabaseWrites": 0
+  },
+  "productCoverage": {
+    "value": 13,
+    "unit": "m²/L",
+    "min": 11,
+    "max": 13,
+    "perCoat": true,
+    "guaranteed": false,
+    "spec": { "value": 13, "unit": "L", "basis": "m²" },
+    "_note": "NOMINAL 13 m²/L = the top of the OFFICIAL Astral 11–13 m²/L range for LAKALO SATINÉ, and it is PER COAT. NOT a guaranteed coverage: real yield varies with support, tool and application, so 13 must be read as 'nominal within 11–13', never as a floor. The binding keeps the NOMINAL value (spec.value = 13) so the P2 formula stays 50 × 1 ÷ 13 = 3.846 L; the min/max are recorded for review only — they are NOT encoded into the binding, and NO waste percentage is added."
+  },
+  "applicationRecommendation": {
+    "kind": "PRODUCT_APPLICATION_RECOMMENDATION",
+    "coats": 2,
+    "productScope": "Astral Lakalo (LAKALO SATINÉ) only",
+    "_note": "RECORDED AT PRODUCT LEVEL ONLY (carried from the existing P2 fixture/report context). It is deliberately NOT encoded as layers=2 in the generic peinture/mur_interieur element, NOT in the material binding, and NEVER as a general peinture rule — the generic element keeps layers: null and the Métré quantity is NOT multiplied."
+  },
+  "metreElement": {
+    "_note": "Byte-identical mirror of the existing registry element (trade=peinture, code=mur_interieur). Legacy shape: NO enriched block, NO layers, NO bindings — see rule 'no layers=2 at this stage'.",
+    "elementCode": "mur_interieur",
+    "trade": "peinture",
+    "labelFr": "Mur intérieur — peinture",
+    "labelAr": "جدار داخلي — دهان",
+    "method": "surface",
+    "dims": [
+      { "key": "largeur", "labelFr": "Largeur", "labelAr": "العرض", "unit": "m", "default": 4 },
+      { "key": "hauteur", "labelFr": "Hauteur", "labelAr": "الارتفاع", "unit": "m", "default": 2.8 },
+      { "key": "nb", "labelFr": "Nombre", "labelAr": "العدد", "unit": "unit", "default": 1 }
+    ],
+    "calc": { "op": "product", "dims": ["largeur", "hauteur", "nb"] },
+    "qtyUnit": "m²",
+    "layers": null
+  },
+  "materialBindings": [
+    {
+      "slotCode": "peinture_mur_interieur_astral_lakalo",
+      "materialCode": "PROPOSED_ONLY",
+      "driver": { "type": "metre_qty" },
+      "coefficient": { "value": 1 },
+      "coveragePerProductUnit": { "value": 13, "unit": "L", "basis": "m²" },
+      "outputUnit": "L"
+    }
+  ],
+  "_materialCodeNote": "'PROPOSED_ONLY' is a deliberate placeholder required by the MaterialBinding schema shape. It is NOT an official catalogue code, must never be committed to trade_metre_elements.material_bindings, and MUST be replaced by a real, officially created material code (Material Catalog step) before any promotion.",
+  "serviceBindings": [],
+  "trialExpectation": {
+    "scenario": "50 m² interior wall",
+    "driver": "metre_qty",
+    "coverageUsed": "NOMINAL 13 m²/L (top of the official 11–13 m²/L Astral range, per coat) — a single-coat yield computation; the 2-coat recommendation does NOT multiply it",
+    "formula": "qty = (metre_qty × coefficient) ÷ coverage = 50 × 1 ÷ 13",
+    "expectedQty": 3.846,
+    "expectedUnit": "L",
+    "rejectedWithoutOfficialMaterialCatalog": true
+  }
+}

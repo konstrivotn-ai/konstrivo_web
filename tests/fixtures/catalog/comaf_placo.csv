@@ -1,0 +1,7 @@
+sep=;
+Réf. Article;Désignation;Unité de vente;Famille;Prix public HT;Prix public TTC;Taux TVA;Date observation;Image;Fiche PDF
+CPS-BA13-13;Plaque de plâtre BA13 standard 2500x1200x13;m2;Plaques de plâtre;18,500;22,015;19;2026-02-10;https://comaf.example/img/ba13-13.jpg;https://comaf.example/fiches/ba13-13.pdf
+CPS-BA13-25;Plaque de plâtre BA13 standard 2500x1200x25;m2;Plaques de plâtre;34,900;41,531;19;2026-02-10;https://comaf.example/img/ba13-25.jpg;https://comaf.example/fiches/ba13-25.pdf
+CPS-BA13-H2;Plaque de plâtre hydrofuge BA13 H2 2500x1200x13;m2;Plaques de plâtre;26,750;31,833;19;2026-02-10;https://comaf.example/img/ba13-h2.jpg;https://comaf.example/fiches/ba13-h2.pdf
+CPS-SUB-48;Profilé SUB 48/27 3m;l;Ossature métallique;7,250;8,628;19;2026-02-10;https://comaf.example/img/sub48.jpg;https://comaf.example/fiches/sub48.pdf
+CPS-COL-300;Colles à joint sac 30Kg;Sac;Accessoires de pose;;45,000;19;2026-02-10;https://comaf.example/img/colle300.jpg;https://comaf.example/fiches/colle300.pdf

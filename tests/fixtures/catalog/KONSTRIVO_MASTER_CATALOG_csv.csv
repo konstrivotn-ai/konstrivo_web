@@ -1,0 +1,7 @@
+product_id,product_name,trade_code,trade_name,unit,price_ht,tva_rate,currency,country,source,source_url,effective_from,observed_at,status
+MAT-PLA-001,Plaque de plâtre BA13 1200x2500mm,placo,Plaques & cloisons sèches,m2,18.500,19,TND,TN,KONSTRIVO_MASTER,https://konstrivo.example/catalogue/mat-pla-001,2026-01-05,2026-01-03,active
+MAT-PLA-002,Enduit de raccords pour plaques 25Kg,placo,Plaques & cloisons saches,Sac,12.900,19,TND,TN,KONSTRIVO_MASTER,https://konstrivo.example/catalogue/mat-pla-002,2026-01-05,2026-01-03,active
+MAT-PEI-001,Peinture acrylique blanche 10L,peinture,Peinture et finition,L,245.000,19,TND,TN,KONSTRIVO_MASTER,https://konstrivo.example/catalogue/mat-pei-001,2026-01-05,2026-01-03,active
+MAT-PEI-002,Couche d impression glycéro 10L,peinture,Peinture et finition,L,189.500,19,TND,TN,KONSTRIVO_MASTER,https://konstrivo.example/catalogue/mat-pei-002,2026-01-05,2026-01-03,pending
+MAT-PLO-001,Tube cuivre écroui 12x14 5M,plomberie,Plomberie et sanitaire,U,420.000,19,TND,TN,KONSTRIVO_MASTER,https://konstrivo.example/catalogue/mat-plo-001,2026-01-05,2026-01-03,active
+MAT-ELE-001,Câble rigide uni 2.5mm2 100M,electricite,Courants forts,U,175.000,19,TND,TN,KONSTRIVO_MASTER,https://konstrivo.example/catalogue/mat-ele-001,2026-01-05,2026-01-03,active
