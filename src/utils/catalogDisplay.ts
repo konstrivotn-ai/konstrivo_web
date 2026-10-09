@@ -166,8 +166,8 @@ export function isExcludedPublicTradeLabel(
 ): boolean {
   const normalize = (value: string | null | undefined) => catalogKey(value)
     .replace(/&/g, ' ')
-    .replace(/\\bet\\b/g, ' ')
-    .replace(/\\s+/g, ' ')
+    .replace(/\bet\b/g, ' ')
+    .replace(/\s+/g, ' ')
     .trim();
   return [label, code].some((value) => {
     const key = normalize(value);
