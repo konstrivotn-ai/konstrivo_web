@@ -24,7 +24,7 @@ import { getCountryConfig, getCurrencyMeta, convertFromTnd, formatPrice } from '
 import { loadServicesForTrade, TradeServiceConfig } from '../data/tradeServices';
 import { auditCalculationResult, generateAuditPdfHtml } from '../utils/auditEngine';
 import { groupCatalogEntries, prettyCatalogCode, sameCatalogKey, CatalogGroup } from '../utils/catalogDisplay';
-import { isExcludedSentinelTradeCode } from '../utils/catalogDisplay';
+import { isExcludedSentinelTradeCode, isExcludedPublicTradeLabel } from '../utils/catalogDisplay';
 import { applyCalcRulesToResult, resolveCountryWasteMarginDefault } from '../utils/calculatorRulesBridge';
 import { listTrades, listCountryCalcRules } from '../lib/api';
 // PHASE 2 — DYNAMIC MÉTRÉ: registry + quantity engine bridge (ADDITIVE ONLY).
@@ -204,7 +204,7 @@ export const CalculatorTab: React.FC<CalculatorTabProps> = ({
   const rateTradeCodes: string[] = Array.from(new Set(
     rates
       .flatMap(r => [(r.trade || '').trim(), (r.category || '').trim()])
-      .filter((c): c is string => c.length > 0 && !isExcludedSentinelTradeCode(c))
+      .filter((c): c is string => c.length > 0 && !isExcludedSentinelTradeCode(c) && !isExcludedPublicTradeLabel(c))
   ));
   // ── Trade Registry rule for the Outils grid (2026-09-27) ───────────────────
   // The grid may only offer a métier the calculator can actually serve:
@@ -225,6 +225,7 @@ export const CalculatorTab: React.FC<CalculatorTabProps> = ({
     // excluded from every user-facing trade list while its materials/prices
     // stay fully queryable and resolvable (see `isExcludedSentinelTradeCode`).
     if (isExcludedSentinelTradeCode(t.code)) return false;
+    if (isExcludedPublicTradeLabel(t.labelFr, t.code)) return false;
     if (t.isOfficial) return true;
     const label = (t.labelFr || '').trim().toLowerCase();
     const code = (t.code || '').trim().toLowerCase();
