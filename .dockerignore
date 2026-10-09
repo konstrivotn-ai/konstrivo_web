@@ -1,23 +1,15 @@
-# Build context for the Cloudflare Containers image (`wrangler deploy` builds it with Docker).
-# Keep it minimal: the container needs ONLY production node_modules + dist/server.cjs.
-#  - `dist/*` is ignored, then `dist/server.cjs` is un-ignored (the one required artifact).
-#  - `dist/index.html` + `dist/assets/*` are NOT shipped: the SPA is served by
-#    Workers Static Assets (`assets.directory: "./dist"`), not by the container.
+# Generic Docker build context for portable Node.js/Docker hosts.
+# Keep source files available so "npm run build" can create dist inside the image.
 node_modules
-cf-worker-dist
-dist/*
-!dist/server.cjs
-api
-src
-tests
-server
-scripts
-docs
-patch
-.git
-.github
-.vscode
-.wrangler
+dist/
+dist-pages/
+cf-worker-dist/
+coverage/
+build/
+.git/
+.github/
+.vscode/
+.wrangler/
 *.log
 .env*
 !.env.example
