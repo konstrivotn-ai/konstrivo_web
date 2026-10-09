@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "scripts": {
+  "scripts": {"build:pages": "vite build --outDir dist-pages",
     "dev": "tsx server.ts",
     "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs && esbuild vercel-entry.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=api/index.cjs",
     "build:cf": "esbuild worker-entry.ts --bundle --format=esm --platform=node --target=es2022 --external:node:* --external:cloudflare:* --define:process.env.NODE_ENV=\\\"production\\\" --outfile=cf-worker-dist/worker.js",
