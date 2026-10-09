@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { Language, MaterialRate, Trade } from '../types';
 import { catalogKey, groupCatalogEntries, prettyCatalogCode, sameCatalogKey, uniqueCatalogValues, CatalogGroup } from '../utils/catalogDisplay';
-import { isExcludedSentinelTradeCode, isDisplayableCatalogueTrade } from '../utils/catalogDisplay';
+import { isExcludedSentinelTradeCode, isDisplayableCatalogueTrade, isExcludedPublicTradeLabel } from '../utils/catalogDisplay';
 import { listTrades, listTradeServices } from '../lib/api';
 import { subscribeTradeRegistry, isTradeInactiveOrDeleted } from '../data/tradeRegistry';
 
@@ -131,6 +131,7 @@ export const ServicesTab: React.FC<ServicesTabProps> = ({
     () => uniqueCatalogValues(rates.map(r => r.category)).filter(code =>
       !isTradeInactiveOrDeleted(code)
       && !isExcludedSentinelTradeCode(code)
+      && !isExcludedPublicTradeLabel(code)
       && !officialTradeKeys.has(catalogKey(code))
     ),
     [rates, officialTradeKeys]
