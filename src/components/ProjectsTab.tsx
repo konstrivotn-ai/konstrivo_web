@@ -464,13 +464,9 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({
         </div>
       </section>
 
-      {/* 5. STATS BAR (450+ Projets présentés | Catégories | Régions | Professionnels) */}
+      {/* 5. STATS BAR (Catégories | Régions) */}
       <section className="bg-[#131b2e] border border-slate-800 rounded-3xl p-6 sm:p-8">
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
-          <div>
-            <span className="text-3xl font-black text-white font-mono block">450 +</span>
-            <span className="text-xs text-slate-400 mt-1 block">Projets présentés</span>
-          </div>
           <div>
             <span className="text-3xl font-black text-amber-400 font-mono block">12</span>
             <span className="text-xs text-slate-400 mt-1 block">Catégories</span>
@@ -478,10 +474,6 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({
           <div>
             <span className="text-3xl font-black text-white font-mono block">24</span>
             <span className="text-xs text-slate-400 mt-1 block">Régions</span>
-          </div>
-          <div>
-            <span className="text-3xl font-black text-amber-400 font-mono block">1200 +</span>
-            <span className="text-xs text-slate-400 mt-1 block">Professionnels contributeurs</span>
           </div>
         </div>
       </section>

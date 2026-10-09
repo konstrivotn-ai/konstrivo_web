@@ -1243,7 +1243,7 @@ export default function App() {
             <div className="space-y-2">
               <span className="font-mono font-black text-amber-400 text-sm block">KONSTRIVO BTP</span>
               <p className="text-slate-400 text-[11px] leading-relaxed">
-                Plateforme SaaS leader en estimation de mÃ©trÃ©, devis conformes aux DTU et gestion de chantiers en Tunisie et Ã  l'international.
+                Plateforme SaaS dédiée à l'estimation de métré, aux devis basés sur des références DTU et à la gestion de chantiers en Tunisie et à l'international.
               </p>
             </div>
 

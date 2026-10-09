@@ -1,7 +1,7 @@
 import React from 'react';
 import { 
   Building2, HardHat, Calculator, Layers, Users, FileText, 
-  ArrowRight, ShieldCheck, Briefcase, ChevronRight, Sparkles
+  ArrowRight, Briefcase, ChevronRight, Sparkles
 } from 'lucide-react';
 import { Language, CountryCode, CurrencyCode } from '../types';
 
@@ -63,28 +63,10 @@ export const HomeTab: React.FC<HomeTabProps> = ({
 
   const statsMetrics = [
     {
-      id: 'projects',
-      number: '450 +',
-      label: 'Projets réalisés',
-      icon: Building2
-    },
-    {
-      id: 'pros',
-      number: '1200 +',
-      label: 'Professionnels partenaires',
-      icon: Users
-    },
-    {
       id: 'tools',
       number: '25 +',
       label: 'Outils professionnels',
       icon: Briefcase
-    },
-    {
-      id: 'satisfaction',
-      number: '98%',
-      label: 'Clients satisfaits',
-      icon: ShieldCheck
     }
   ];
 
