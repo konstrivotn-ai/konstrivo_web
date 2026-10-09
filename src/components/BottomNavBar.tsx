@@ -73,7 +73,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
       aria-label="Navigation principale mobile"
       className="fixed bottom-0 left-0 right-0 z-40 bg-slate-950/95 backdrop-blur-md border-t border-slate-800/90 md:hidden px-1.5 py-1.5 shadow-2xl print:hidden"
     >
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-0.5 sm:gap-1">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -82,7 +82,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
               key={tab.id}
               id={`bottom-nav-tab-${tab.id}`}
               onClick={() => setActiveTab(tab.id)}
-              className={`relative flex flex-col items-center justify-center py-1 px-0.5 rounded-xl transition-all ${
+              className={`relative min-w-0 flex flex-col items-center justify-center py-1 px-0 rounded-xl transition-all ${
                 isActive
                   ? 'text-amber-400 font-bold bg-amber-500/10'
                   : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
@@ -102,7 +102,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
                   </span>
                 )}
               </div>
-              <span className="text-[9px] mt-1 truncate max-w-full text-center">
+              <span className="text-[9px] mt-1 truncate w-full max-w-full text-center">
                 {lang === 'ar' || lang === 'ar' ? tab.labelAr : tab.labelFr}
               </span>
             </button>
