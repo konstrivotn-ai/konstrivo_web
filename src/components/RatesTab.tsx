@@ -7,7 +7,7 @@ import {
 import { MaterialRate, Language, TradeCategory, CurrencyCode, CountryCode } from '../types';
 import { getCountryConfig, getCurrencyMeta, convertFromTnd } from '../data/countryConfig';
 import { catalogKey, sameCatalogKey, uniqueCatalogValues } from '../utils/catalogDisplay';
-import { isExcludedSentinelTradeCode } from '../utils/catalogDisplay';
+import { isExcludedSentinelTradeCode, isExcludedPublicTradeLabel } from '../utils/catalogDisplay';
 import { isTradeInactiveOrDeleted, subscribeTradeRegistry } from '../data/tradeRegistry';
 
 
@@ -88,7 +88,7 @@ export const RatesTab: React.FC<RatesTabProps> = ({
     rates
       .filter(r => !isTradeInactiveOrDeleted(r.trade) && !isTradeInactiveOrDeleted(r.category))
       .map(r => r.category)
-      .filter(c => !isExcludedSentinelTradeCode(c))
+      .filter(c => !isExcludedSentinelTradeCode(c) && !isExcludedPublicTradeLabel(c))
   );
   // If a previously selected category disappears from the data, fall back to
   // "all" instead of rendering an empty list.
@@ -97,6 +97,8 @@ export const RatesTab: React.FC<RatesTabProps> = ({
     : 'all';
 
   const filteredRates = rates.filter(r => {
+    // Hide the requested trades from this public view only; stored rates remain intact.
+    if (isExcludedPublicTradeLabel(r.trade, r.category)) return false;
     // Hide materials belonging to deactivated/deleted trades
     if (isTradeInactiveOrDeleted(r.trade) || isTradeInactiveOrDeleted(r.category)) {
       return false;
