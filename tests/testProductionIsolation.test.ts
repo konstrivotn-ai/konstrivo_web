@@ -125,3 +125,23 @@ test('isolation: a LOCAL database keeps the previous development behaviour', () 
   assert.equal(guard({ isLocalDb: true }).allowed, true, 'no new flag needed for local development');
   assert.equal(guard({ isLocalDb: true }).reason, 'ok');
 });
+
+test('isolation: local database detection requires an exact parsed hostname', () => {
+  for (const u of [
+    'postgresql://user:pass@localhost.attacker.example:5432/db',
+    'postgresql://user:pass@notlocalhost:5432/db',
+    'postgresql://127.0.0.1.attacker.example/db',
+    'postgresql://127.0.0.1@remote.example/db',
+    'not-a-database-url-localhost',
+  ]) {
+    assert.equal(isLocalDatabaseUrl(u), false, `${u} must not be trusted as local`);
+  }
+  for (const u of [
+    'postgresql://user:pass@localhost:5432/db',
+    'postgresql://user:pass@127.0.0.1:5432/db',
+    'postgresql://user:pass@[::1]:5432/db',
+    'postgresql://user:pass@host.docker.internal:5432/db',
+  ]) {
+    assert.equal(isLocalDatabaseUrl(u), true, `${u} must remain local`);
+  }
+});
