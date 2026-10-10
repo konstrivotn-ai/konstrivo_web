@@ -42,7 +42,7 @@ export async function runBootstrapTests() {
     }
   });
 
-  await test('production + localhost DB + ADMIN_BOOTSTRAP=1 does NOT require ADMIN_BOOTSTRAP_FORCE', async () => {
+  await test('test harness requires ADMIN_BOOTSTRAP_FORCE even with localhost DB', async () => {
     const prevs = {
       NODE_ENV: process.env.NODE_ENV,
       JWT_SECRET: process.env.JWT_SECRET,
@@ -58,7 +58,10 @@ export async function runBootstrapTests() {
       process.env.ADMIN_EMAIL = 'prod-local-db@test.tn';
       process.env.ADMIN_PASSWORD = 'longpasswordprod001'; // >=16
       process.env.ADMIN_BOOTSTRAP = '1';
-      delete process.env.ADMIN_BOOTSTRAP_FORCE;
+      // The test runner is deliberately fail-closed; explicit force is required
+      // for this test-only bootstrap. Non-harness local DB behavior is covered by
+      // evaluateBootstrapGuard's pure unit test.
+      process.env.ADMIN_BOOTSTRAP_FORCE = '1';
       process.env.DATABASE_URL = 'postgres://localhost:5432/testdb';
 
       try { delete require.cache[require.resolve('../server/bootstrap')]; } catch {}
