@@ -42,6 +42,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Enable UUID extension in disposable PostgreSQL
+        run: psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";'
       - name: Prepare current schema in disposable PostgreSQL only
         run: npx drizzle-kit push --force
         env:
