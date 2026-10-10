@@ -50,6 +50,11 @@ jobs:
         run: npx drizzle-kit push --force
         env:
           DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
+      - name: Seed canonical catalog into disposable PostgreSQL only
+        run: npm run db:seed
+        env:
+          NODE_ENV: development
+          DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
       - name: Run integration and regression tests against disposable PostgreSQL
         run: npm test
       - name: Type-check
