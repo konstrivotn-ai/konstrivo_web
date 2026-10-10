@@ -26,9 +26,19 @@ const LOCAL_DB_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '::1', 'host.docker
 
 /** True when the given database URL points at a local machine. */
 export function isLocalDatabaseUrl(databaseUrl: string | undefined): boolean {
-  const url = String(databaseUrl || '').toLowerCase();
-  if (!url) return false;
-  return LOCAL_DB_HOSTS.some((h) => url.includes(h));
+  if (!databaseUrl) return false;
+
+  // Parse the authority instead of substring-matching the whole URL. A remote
+  // host such as `localhost.attacker.example` or a username containing
+  // `127.0.0.1` must never be classified as a trusted local database.
+  try {
+    const parsed = new URL(databaseUrl);
+    const hostname = parsed.hostname.toLowerCase().replace(/^\\[|\\]$/g, '');
+    return LOCAL_DB_HOSTS.includes(hostname);
+  } catch {
+    // Malformed/driver-specific URLs fail closed: they are not assumed local.
+    return false;
+  }
 }
 
 export type BootstrapGuardInput = {
