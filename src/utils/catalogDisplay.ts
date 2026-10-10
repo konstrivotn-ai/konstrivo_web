@@ -144,12 +144,46 @@ export function hasHumanTradeLabel(
  * what the section renders. The official rows therefore stay untouched in the
  * Registry / DB and keep working everywhere else.
  */
+const EXCLUDED_PUBLIC_TRADE_LABELS: ReadonlySet<string> = new Set([
+  'chauffage climatisation',
+  'chauffage clim',
+  'chauffage climatisation btp',
+  'ferronnerie metallerie',
+  'ferronnerie metallerie btp',
+  'piscine paysagisme',
+  'platre traditionnel staff',
+]);
+
+/**
+ * User-requested public-display exclusions. This is deliberately a UI-only
+ * filter: it does not mutate the registry, catalogue rows, prices, or DB.
+ * Both human labels and machine codes are checked because imports can expose
+ * the same trade through either field.
+ */
+export function isExcludedPublicTradeLabel(
+  label: string | null | undefined,
+  code?: string | null,
+): boolean {
+  const normalize = (value: string | null | undefined) => catalogKey(value)
+    .replace(/&/g, ' ')
+    .replace(/\bet\b/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+  return [label, code].some((value) => {
+    const key = normalize(value);
+    if (!key) return false;
+    if (EXCLUDED_PUBLIC_TRADE_LABELS.has(key)) return true;
+    return [...EXCLUDED_PUBLIC_TRADE_LABELS].some((excluded) => key.includes(excluded));
+  });
+}
+
 export function isDisplayableCatalogueTrade(trade: {
   code: string;
   labelFr?: string | null;
   isOfficial?: boolean;
 }): boolean {
   if (trade.isOfficial) return false;
+  if (isExcludedPublicTradeLabel(trade.labelFr, trade.code)) return false;
   return hasHumanTradeLabel(trade.labelFr, trade.code);
 }
 

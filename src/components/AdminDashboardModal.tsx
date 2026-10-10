@@ -43,7 +43,7 @@ import {
   type FeatureFilterField,
   type AdminFeatureCreateDraft,
 } from '../lib/adminFeatures';
-// P3 â€” admin plan helpers (pure) + the plan view type from the API client.
+// P3 — admin plan helpers (pure) + the plan view type from the API client.
 import {
   parseAdminPlanTarget,
   enforcementStatusLabel,
@@ -74,7 +74,7 @@ interface AdminDashboardModalProps {
   onUpdateArtisans: (artisans: ArtisanDirectoryItem[]) => void;
   rates: MaterialRate[];
   onBulkUpdateRates: (rates: MaterialRate[]) => void;
-  /** Phase A â€” called after a successful transactional CSV import so App can re-sync server prices immediately. */
+  /** Phase A — called after a successful transactional CSV import so App can re-sync server prices immediately. */
   onImportCompleted?: () => void;
   lang: Language;
   country: CountryCode;
@@ -84,8 +84,8 @@ interface AdminDashboardModalProps {
 export const TUNISIAN_GOVERNORATES_LIST = [
   'Tunis Grand', 'Ariana', 'Ben Arous', 'Manouba',
   'Nabeul / Cap Bon', 'Bizerte', 'Sousse / Sahel', 'Monastir',
-  'Mahdia', 'Sfax', 'Kairouan', 'GabÃ¨s', 'MÃ©denine / Djerba',
-  'BÃ©ja', 'Jendouba', 'Le Kef', 'Siliana', 'Kasserine',
+  'Mahdia', 'Sfax', 'Kairouan', 'Gabès', 'Médenine / Djerba',
+  'Béja', 'Jendouba', 'Le Kef', 'Siliana', 'Kasserine',
   'Sidi Bouzid', 'Gafsa', 'Tozeur', 'Kebili', 'Tataouine', 'Zaghouan'
 ];
 
@@ -105,7 +105,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   country,
   currency
 }) => {
-    // â”€â”€ Defensive security guard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // ── Defensive security guard ──────────────────────────────────────────────
   // AdminDashboardModal exposes privileged management UI (artisan moderation,
   // rate edition, pro-offer & commission configuration). It MUST only render
   // that UI for a server-validated admin session. isCurrentlyAdmin is the
@@ -130,12 +130,12 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   // CSV File Input Ref
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Phase C â€” Smart Mapping import state (upload â†’ detect â†’ map â†’ preview â†’ import)
+  // Phase C — Smart Mapping import state (upload → detect → map → preview → import)
   const [importFile, setImportFile] = useState<File | null>(null);
   const [importPreview, setImportPreview] = useState<any | null>(null);
   const [importMapping, setImportMapping] = useState<Record<string, string>>({});
   const [importStep, setImportStep] = useState<'idle' | 'mapping' | 'importing'>('idle');
-  // P1 â€” explicit "MÃ©tier par dÃ©faut" (files without a trade column) + the
+  // P1 — explicit "Métier par défaut" (files without a trade column) + the
   // persistent reason shown whenever "Confirmer l'import" is blocked. The
   // confirm handler must NEVER return silently on a blocked preview.
   const [importDefaultTradeChoice, setImportDefaultTradeChoice] = useState<string>('');
@@ -145,16 +145,16 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   // Price Editing Local State
   const [editableRates, setEditableRates] = useState<MaterialRate[]>(rates);
 
-  // Step 7 â€” Multi-Market: target market (country + currency) that persisted
+  // Step 7 — Multi-Market: target market (country + currency) that persisted
   // official prices are saved under. Defaults to the currently selected UI
   // country/currency. Extensible from COUNTRIES_CONFIG (no TN-only hardcoding).
   const [selectedCountry, setSelectedCountry] = useState<CountryCode>(country);
   const [selectedCurrency, setSelectedCurrency] = useState<CurrencyCode>(currency);
 
-  // Step 8 â€” Price Update Foundation: pending (unapproved) price updates for
-  // admin review. Minimal UI â€” a list + an Approve button per row.
-  // P2 â€” the review panel now tracks its own load state: a FAILED load (expired
-  // admin session, DB unavailable, 5xxâ€¦) is surfaced with the real reason plus a
+  // Step 8 — Price Update Foundation: pending (unapproved) price updates for
+  // admin review. Minimal UI — a list + an Approve button per row.
+  // P2 — the review panel now tracks its own load state: a FAILED load (expired
+  // admin session, DB unavailable, 5xx…) is surfaced with the real reason plus a
   // working "Actualiser" instead of being rendered as an empty queue, and a row
   // already being approved cannot be clicked twice (double publish). A
   // successful approve also re-syncs the app prices immediately
@@ -173,7 +173,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       setPendingUpdates(Array.isArray(rows) ? rows : []);
       setPendingLoadState('loaded');
     } catch (err: any) {
-      // P2 â€” never fail silently: the panel stays visible with the real reason.
+      // P2 — never fail silently: the panel stays visible with the real reason.
       setPendingUpdates([]);
       setPendingError(pendingReviewErrorMessage(err));
       setPendingLoadState('error');
@@ -185,10 +185,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     try {
       await approvePendingPriceUpdate(id);
       await loadPendingUpdates();
-      // P2 â€” the approved row is now the official current price of its market:
+      // P2 — the approved row is now the official current price of its market:
       // re-run the existing price sync so the calculator/devis use it at once.
       if (typeof onImportCompleted === 'function') onImportCompleted();
-      setNotification('âœ“ Prix approuvÃ© : il devient le prix officiel courant de son marchÃ©.');
+      setNotification('✓ Prix approuvé : il devient le prix officiel courant de son marché.');
       setTimeout(() => setNotification(null), 3500);
     } catch (err: any) {
       setNotification(`âš  ${pendingReviewErrorMessage(err, "Impossible d'approuver ce prix.")}`);
@@ -198,7 +198,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     }
   };
 
-  // P2 â€” single source of truth for what the review panel renders.
+  // P2 — single source of truth for what the review panel renders.
   const pendingReviewView = resolvePendingReviewView({
     isAdmin: isCurrentlyAdmin,
     isPricesTab: activeAdminTab === 'prices',
@@ -233,10 +233,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     note: ''
   });
 
-  // Real server feature/plan view (company subscription â†’ FREE/PRO).
+  // Real server feature/plan view (company subscription → FREE/PRO).
   // This is the authoritative frontend view of /api/v1/features and replaces any
   // stale dependency on a non-existent /api/v1/pro-features contract.
-  // P3: `enforced` comes from the server too â€” the UI never decides on its own
+  // P3: `enforced` comes from the server too — the UI never decides on its own
   // whether FREE/PRO gating is active.
   const {
     planCode: featurePlan,
@@ -246,11 +246,11 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     refresh: refreshFeaturePlan,
   } = useFeatures();
 
-  // Phase 2 â€” Server-backed Feature Entitlement management (/api/v1/admin/features).
+  // Phase 2 — Server-backed Feature Entitlement management (/api/v1/admin/features).
   // Replaces the former localStorage('konstrivo_pro_features') marketing store:
   // this tab now edits the REAL Feature Entitlement system the backend enforces.
   // P3: these settings ARE the live access control (freeAccess / proAccess /
-  // role `scope` / usageLimit) â€” an admin change takes effect on the next check.
+  // role `scope` / usageLimit) — an admin change takes effect on the next check.
   const [serverFeatures, setServerFeatures] = useState<AdminFeatureEntitlement[]>([]);
   const [featuresLoadState, setFeaturesLoadState] = useState<'idle' | 'loading' | 'loaded' | 'error'>('idle');
   const [featuresLoadError, setFeaturesLoadError] = useState<string | null>(null);
@@ -258,7 +258,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const [savingKeys, setSavingKeys] = useState<Record<string, boolean>>({});
   // usageLimit inputs are committed on blur (one POST per committed change).
   const [usageLimitDrafts, setUsageLimitDrafts] = useState<Record<string, string>>({});
-  // Phase 3 â€” control-center view options (client-side only; the backend model
+  // Phase 3 — control-center view options (client-side only; the backend model
   // has no persistent ordering column, so display order is never persisted).
   const [featureSearch, setFeatureSearch] = useState('');
   const [featureSearchField, setFeatureSearchField] = useState<FeatureFilterField>('all');
@@ -295,8 +295,8 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, isCurrentlyAdmin]);
 
-  // Phase 2/3 â€” Admin Usage Analytics: real DB aggregation only
-  // (GET /api/v1/admin/features/usage?from&to&topUsers â†’ user_feature_usage; no sample data).
+  // Phase 2/3 — Admin Usage Analytics: real DB aggregation only
+  // (GET /api/v1/admin/features/usage?from&to&topUsers → user_feature_usage; no sample data).
   const [usageStats, setUsageStats] = useState<AdminFeatureUsageStats | null>(null);
   const [usageStatsError, setUsageStatsError] = useState<string | null>(null);
   const [usageStatsLoading, setUsageStatsLoading] = useState(false);
@@ -326,7 +326,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeAdminTab, isCurrentlyAdmin, usagePreset, usageShowTopUsers]);
 
-  // â”€â”€ P3 â€” Admin plan management (FREE/PRO) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── P3 — Admin plan management (FREE/PRO) ──────────────────────────────────
   // Admin-only endpoints on the EXISTING subscriptions row (the row the Flouci
   // payment webhook/PRO verification also writes to). The plan returned here is
   // resolved by the SAME rule access control uses (getUserPlan /
@@ -356,7 +356,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       setPlanView(await getAdminPlan(target));
     } catch (err: any) {
       setPlanView(null);
-      setPlanError(err?.message || 'Impossible de rÃ©soudre le plan.');
+      setPlanError(err?.message || 'Impossible de résoudre le plan.');
     } finally {
       setPlanBusy(false);
     }
@@ -370,10 +370,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     try {
       const view = await setAdminPlan({ ...target, plan });
       setPlanView(view);
-      // Same entitlement source â†’ refresh so the FREE/PRO badge of the current
+      // Same entitlement source → refresh so the FREE/PRO badge of the current
       // session immediately matches what the backend now enforces.
       await refreshFeaturePlan();
-      setNotification(`âœ“ Plan ${adminPlanLabel(view.planCode)} appliquÃ© (entreprise ${view.companyId}).`);
+      setNotification(`✓ Plan ${adminPlanLabel(view.planCode)} appliqué (entreprise ${view.companyId}).`);
       setTimeout(() => setNotification(null), 3500);
     } catch (err: any) {
       setPlanError(err?.message || 'Impossible de modifier le plan.');
@@ -382,7 +382,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     }
   };
 
-  // Phase 3 â€” control-center derivations: overview counters + filtered/sorted
+  // Phase 3 — control-center derivations: overview counters + filtered/sorted
   // display list. Both are pure client-side views of `serverFeatures`; the
   // stored server order (GET /admin/features) is never mutated by them.
   const featureSummary = computeFeatureSummary(serverFeatures);
@@ -442,22 +442,22 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       
       // Verify the returned profile has admin role
       if (adminProfile.role !== 'admin') {
-        setAuthError('AccÃ¨s refusÃ©. Ce compte n\'a pas les permissions administrateur.');
+        setAuthError('Accès refusé. Ce compte n\'a pas les permissions administrateur.');
         return;
       }
 
       onLogin(adminProfile);
-      setNotification('âœ“ Connexion Administrateur rÃ©ussie.');
+      setNotification('✓ Connexion Administrateur réussie.');
       setTimeout(() => setNotification(null), 3000);
     } catch (err: any) {
-      setAuthError(err?.message || 'Ã‰chec de la connexion. VÃ©rifiez vos identifiants.');
+      setAuthError(err?.message || 'Échec de la connexion. Vérifiez vos identifiants.');
     }
   };
 
   // Logout Handler
   const handleAdminLogout = () => {
     onLogout();
-    setNotification('DÃ©connexion Administrateur effectuÃ©e.');
+    setNotification('Déconnexion Administrateur effectuée.');
     setTimeout(() => {
       setNotification(null);
       onClose();
@@ -473,9 +473,9 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
           ...a,
           isPro2026: nextStatus,
           // Rule 7 (Phase 2 fix F1): verification is independent of the
-          // PRO/subscription status â€” never derive isVerified from the toggle.
+          // PRO/subscription status — never derive isVerified from the toggle.
           badges: nextStatus 
-            ? Array.from(new Set([...a.badges, 'CertifiÃ© KONSTRIVO PRO 2026']))
+            ? Array.from(new Set([...a.badges, 'Certifié KONSTRIVO PRO 2026']))
             : a.badges.filter(b => !b.includes('PRO'))
         };
       }
@@ -483,25 +483,25 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     });
 
     onUpdateArtisans(updated);
-    setNotification('âœ“ Statut PRO de l\'artisan mis Ã  jour avec succÃ¨s.');
+    setNotification('✓ Statut PRO de l\'artisan mis à jour avec succès.');
     setTimeout(() => setNotification(null), 3000);
   };
 
   // Delete an artisan
   const handleDeleteArtisan = (artisanId: string, artisanName: string) => {
-    if (window.confirm(`ÃŠtes-vous sÃ»r de vouloir supprimer dÃ©finitivement l'artisan "${artisanName}" de l'annuaire ?`)) {
+    if (window.confirm(`Êtes-vous sûr de vouloir supprimer définitivement l'artisan "${artisanName}" de l'annuaire ?`)) {
       const updated = artisans.filter(a => a.id !== artisanId);
       onUpdateArtisans(updated);
-      setNotification(`âœ“ Artisan "${artisanName}" supprimÃ© de l'annuaire.`);
+      setNotification(`✓ Artisan "${artisanName}" supprimé de l'annuaire.`);
       setTimeout(() => setNotification(null), 3000);
     }
   };
 
-  // Save modified base prices â€” persist EACH rate to PostgreSQL (official catalog)
+  // Save modified base prices — persist EACH rate to PostgreSQL (official catalog)
   const handleSavePrices = async () => {
     onBulkUpdateRates(editableRates);
     if (!isCurrentlyAdmin) {
-      setNotification('âœ“ Tous les barÃ¨mes de prix ont Ã©tÃ© enregistrÃ©s et appliquÃ©s en direct.');
+      setNotification('✓ Tous les barèmes de prix ont été enregistrés et appliqués en direct.');
       setTimeout(() => setNotification(null), 3000);
       return;
     }
@@ -527,9 +527,9 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
           // skip individual failures; UI still reflects local edit
         }
       }
-      setNotification(`âœ“ BarÃ¨mes enregistrÃ©s : ${saved}/${editableRates.length} matÃ©riaux sauvegardÃ©s dans la base de donnÃ©es.`);
+      setNotification(`✓ Barèmes enregistrés : ${saved}/${editableRates.length} matériaux sauvegardés dans la base de données.`);
     } catch (e) {
-      setNotification('âœ“ BarÃ¨mes appliquÃ©s en local (sauvegarde serveur partielle).');
+      setNotification('✓ Barèmes appliqués en local (sauvegarde serveur partielle).');
     }
     setTimeout(() => setNotification(null), 3500);
   };
@@ -543,7 +543,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const handleCreateMaterial = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMaterial.nameFr || newMaterial.unitPriceTnd <= 0) {
-      alert('Veuillez fournir un nom de matÃ©riau et un prix unitaire supÃ©rieur Ã  0.');
+      alert('Veuillez fournir un nom de matériau et un prix unitaire supérieur à 0.');
       return;
     }
 
@@ -551,7 +551,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     const cleanNameFr = sanitizeInput(newMaterial.nameFr);
     const cleanNameAr = sanitizeInput(newMaterial.nameAr) || cleanNameFr;
     const cleanNameEn = sanitizeInput(newMaterial.nameEn) || '';
-    const cleanNote = sanitizeInput(newMaterial.note) || 'MatÃ©riau personnalisÃ© ajoutÃ© via Administration BTP';
+    const cleanNote = sanitizeInput(newMaterial.note) || 'Matériau personnalisé ajouté via Administration BTP';
 
     const newMaterialRate: MaterialRate = {
       id: createdId,
@@ -569,7 +569,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     setEditableRates(updatedRates);
     onBulkUpdateRates(updatedRates);
 
-    // Step 5 â€” persist the new official material + price to PostgreSQL
+    // Step 5 — persist the new official material + price to PostgreSQL
     if (isCurrentlyAdmin) {
       try {
         await upsertCatalogItem({
@@ -590,7 +590,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       }
     }
 
-    setNotification(`âœ“ Nouveau matÃ©riau "${cleanNameFr}" (${newMaterial.unitPriceTnd} DT/${newMaterial.unit}) ajoutÃ© aux barÃ¨mes BTP et calculateurs !`);
+    setNotification(`✓ Nouveau matériau "${cleanNameFr}" (${newMaterial.unitPriceTnd} DT/${newMaterial.unit}) ajouté aux barèmes BTP et calculateurs !`);
     
     // Reset Form
     setNewMaterial({
@@ -606,13 +606,13 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     setTimeout(() => setNotification(null), 3500);
   };
 
-  // Archive Material Handler â€” DATABASE-FIRST (DB = source of truth).
+  // Archive Material Handler — DATABASE-FIRST (DB = source of truth).
   //
   // The active catalog state lives in PostgreSQL (`materials.is_deleted`), so the
-  // Admin action goes to `DELETE /api/v1/materials/:id` FIRST and the local barÃ¨me
+  // Admin action goes to `DELETE /api/v1/materials/:id` FIRST and the local barème
   // is only updated AFTER the server confirms (HTTP 2xx). The material is then
-  // suppressed locally (`catalogTombstones`) so no cache â€” localStorage barÃ¨me,
-  // dev defaults, merge base â€” can revive it after a Refresh / app reopen.
+  // suppressed locally (`catalogTombstones`) so no cache — localStorage barème,
+  // dev defaults, merge base — can revive it after a Refresh / app reopen.
   //
   // Nothing is hard-deleted and no history is rewritten: the material row keeps
   // its code and price rows, and Devis/project snapshots, users and projects are
@@ -622,10 +622,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const handleDeleteMaterial = async (rate: MaterialRate) => {
     const label = rate.nameFr || rate.id;
     const confirmed = window.confirm(
-      `Archiver le matÃ©riau "${label}" ?\n\n` +
-      'â€¢ retirÃ© des barÃ¨mes (Tarifs / Outils / Services) et ne reviendra pas aprÃ¨s un Refresh ;\n' +
-      'â€¢ conservÃ© dans la base de donnÃ©es (prix, historique et Devis existants intacts) ;\n' +
-      'â€¢ un nouvel import du mÃªme code le republiera.'
+      `Archiver le matériau "${label}" ?\n\n` +
+      '• retiré des barèmes (Tarifs / Outils / Services) et ne reviendra pas après un Refresh ;\n' +
+      '• conservé dans la base de données (prix, historique et Devis existants intacts) ;\n' +
+      '• un nouvel import du même code le republiera.'
     );
     if (!confirmed) return;
 
@@ -633,7 +633,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     // resolves it (plus an optional explicit code) without guessing.
     const reference = String((rate as any).code || rate.id || '').trim();
     if (reference === '') {
-      setNotification('âœ— RÃ©fÃ©rence matÃ©riau illisible â€” rien n\'a Ã©tÃ© modifiÃ©.');
+      setNotification('✗ Référence matériau illisible — rien n\'a été modifié.');
       setTimeout(() => setNotification(null), 4000);
       return;
     }
@@ -645,13 +645,13 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
         archivedInDb = true;
       } catch (err: any) {
         if (Number(err?.status) === 404) {
-          // No row in the database (local-only barÃ¨me entry): the local removal is
+          // No row in the database (local-only barème entry): the local removal is
           // legitimate, but it is reported EXACTLY for what it is.
           archivedInDb = false;
         } else {
-          // Real server refusal (403/409/500â€¦): NOTHING changes locally and no
-          // success is claimed â€” the Admin sees the server's own reason.
-          setNotification(`âœ— Archivage refusÃ© (${label}) : ${err?.message || 'erreur serveur'} â€” aucun changement appliquÃ©.`);
+          // Real server refusal (403/409/500…): NOTHING changes locally and no
+          // success is claimed — the Admin sees the server's own reason.
+          setNotification(`✗ Archivage refusé (${label}) : ${err?.message || 'erreur serveur'} — aucun changement appliqué.`);
           setTimeout(() => setNotification(null), 6000);
           return;
         }
@@ -667,37 +667,37 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     onBulkUpdateRates(updatedRates);
     setNotification(
       archivedInDb
-        ? `âœ“ MatÃ©riau "${label}" archivÃ© dans la base de donnÃ©es, retirÃ© des barÃ¨mes (historique conservÃ©).`
-        : `âœ“ MatÃ©riau "${label}" retirÃ© des barÃ¨mes (absent de la base de donnÃ©es).`
+        ? `✓ Matériau "${label}" archivé dans la base de données, retiré des barèmes (historique conservé).`
+        : `✓ Matériau "${label}" retiré des barèmes (absent de la base de données).`
     );
     setTimeout(() => setNotification(null), 4000);
   };
 
-  // Phase C â€” Smart Mapping Catalog Import Handlers
+  // Phase C — Smart Mapping Catalog Import Handlers
   // The browser only TRANSMITS the raw file (.csv or .xlsx). ALL parsing,
   // column detection, smart mapping, validation and persistence happen
   // server-side:
-  //   1. POST /api/v1/catalog/preview  â†’ detected columns + suggested mapping
+  //   1. POST /api/v1/catalog/preview  → detected columns + suggested mapping
   //      + sample normalized rows + validation report (NO database write).
   //   2. The Admin reviews/adjusts the mapping (unmapped required fields
-  //      block the import) â€” every change re-previews for live validation.
-  //   3. POST /api/v1/catalog/import   â†’ transactional commit through the
+  //      block the import) — every change re-previews for live validation.
+  //   3. POST /api/v1/catalog/import   → transactional commit through the
   //      EXISTING Phase A mechanism (dynamic trades + ONE transaction).
   const resetImportFlow = () => {
     setImportFile(null);
     setImportPreview(null);
     setImportMapping({});
     setImportStep('idle');
-    // P1 â€” clear the default-trade choice and the block reason with the flow.
+    // P1 — clear the default-trade choice and the block reason with the flow.
     setImportDefaultTradeChoice('');
     setImportDefaultTradeCustom('');
     setImportBlockReason(null);
   };
 
-  // P1 â€” effective "MÃ©tier par dÃ©faut" (select choice + optional custom code).
+  // P1 — effective "Métier par défaut" (select choice + optional custom code).
   const importDefaultTrade = effectiveDefaultTrade(importDefaultTradeChoice, importDefaultTradeCustom);
-  // Known trade categories from the local barÃ¨me â€” used as the explicit
-  // "MÃ©tier par dÃ©faut" options. No new API call, no hardcoded trade list.
+  // Known trade categories from the local barème — used as the explicit
+  // "Métier par défaut" options. No new API call, no hardcoded trade list.
   const knownTradeCategories = Array.from(new Set(
     editableRates.map((r) => (r.category || '').trim()).filter((c) => c.length > 0)
   )).sort();
@@ -714,20 +714,20 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     setImportBlockReason(null);
   };
 
-  // P1 â€” explicit default-trade selection (files without a trade column).
+  // P1 — explicit default-trade selection (files without a trade column).
   const handleDefaultTradeChoiceChange = async (choice: string) => {
     if (!importFile) return;
     setImportDefaultTradeChoice(choice);
     try {
       // Re-preview with the NEW effective choice ('' while "custom" is being
-      // typed â€” the confirm gate stays blocked until the code is committed).
+      // typed — the confirm gate stays blocked until the code is committed).
       await requestImportPreview(importFile, importMapping, choice === CUSTOM_DEFAULT_TRADE ? '' : choice);
     } catch (err: any) {
-      setImportBlockReason(`AperÃ§u impossible aprÃ¨s le choix du mÃ©tier par dÃ©faut : ${err?.message || 'erreur serveur'}. L'import reste bloquÃ©.`);
+      setImportBlockReason(`Aperçu impossible après le choix du métier par défaut : ${err?.message || 'erreur serveur'}. L'import reste bloqué.`);
     }
   };
 
-  // P1 â€” commit the custom default-trade code (blur / Enter â€” never per keystroke).
+  // P1 — commit the custom default-trade code (blur / Enter — never per keystroke).
   const handleDefaultTradeCustomCommit = async () => {
     if (!importFile) return;
     if (importDefaultTradeChoice !== CUSTOM_DEFAULT_TRADE) return;
@@ -735,7 +735,7 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     try {
       await requestImportPreview(importFile, importMapping, value);
     } catch (err: any) {
-      setImportBlockReason(`AperÃ§u impossible pour le mÃ©tier Â« ${value || '(vide)'} Â» : ${err?.message || 'erreur serveur'}. L'import reste bloquÃ©.`);
+      setImportBlockReason(`Aperçu impossible pour le métier « ${value || '(vide)'} » : ${err?.message || 'erreur serveur'}. L'import reste bloqué.`);
     }
   };
 
@@ -746,13 +746,13 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     if (importStep !== 'idle') return;
     const lower = file.name.toLowerCase();
     if (!lower.endsWith('.csv') && !lower.endsWith('.xlsx')) {
-      setNotification('âœ— Format non supportÃ©. Utilisez un fichier .csv ou .xlsx.');
+      setNotification('✗ Format non supporté. Utilisez un fichier .csv ou .xlsx.');
       setTimeout(() => setNotification(null), 6000);
       return;
     }
     setImportStep('mapping');
     setImportFile(file);
-    // New file â†’ reset manual mapping deltas so the previous file's columns
+    // New file → reset manual mapping deltas so the previous file's columns
     // can never shadow the new server suggestion (manual mapping is preserved
     // per-file via handleMappingChange; P1 defaultTrade flow untouched).
     setImportMapping({});
@@ -760,10 +760,10 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
     setImportDefaultTradeCustom('');
     setImportBlockReason(null);
     try {
-      // No mapping yet â€” the server returns its suggestion first.
+      // No mapping yet — the server returns its suggestion first.
       await requestImportPreview(file, {});
     } catch (err: any) {
-      setNotification(`âœ— Import annulÃ© â€” fichier rejetÃ© : ${err?.message || 'Erreur serveur.'}`);
+      setNotification(`✗ Import annulé — fichier rejeté : ${err?.message || 'Erreur serveur.'}`);
       setTimeout(() => setNotification(null), 8000);
       resetImportFlow();
     }
@@ -772,28 +772,28 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
   const handleMappingChange = async (fieldKey: string, sourceColumn: string) => {
     if (!importFile) return;
     const next = { ...importMapping };
-    // Preserve manual mapping exactly: '' = explicit "Non mappÃ©" (server
+    // Preserve manual mapping exactly: '' = explicit "Non mappé" (server
     // validates required-unmap as an error, optional-unmap as a delete).
     // Deleting the key would silently re-apply the server suggestion and make
-    // a manual "Non mappÃ©" choice impossible to keep.
+    // a manual "Non mappé" choice impossible to keep.
     next[fieldKey] = sourceColumn || '';
     setImportMapping(next);
     try {
       // Re-preview for live validation of the new mapping (no DB write).
       await requestImportPreview(importFile, next);
     } catch (err: any) {
-      // P1 â€” re-preview failures are surfaced, never swallowed: the previous
+      // P1 — re-preview failures are surfaced, never swallowed: the previous
       // preview stays on screen but the persistent reason makes the block
       // explicit (the confirm gate consumes this state).
       setImportBlockReason(
-        `AperÃ§u impossible aprÃ¨s le changement de mapping : ${err?.message || 'erreur serveur'}. L'import reste bloquÃ© tant qu'aucun aperÃ§u valide n'est obtenu.`
+        `Aperçu impossible après le changement de mapping : ${err?.message || 'erreur serveur'}. L'import reste bloqué tant qu'aucun aperçu valide n'est obtenu.`
       );
     }
   };
 
   const handleConfirmImport = async () => {
     if (!importFile) return;
-    // Intentional double-submit guard only â€” every OTHER early return must
+    // Intentional double-submit guard only — every OTHER early return must
     // explain itself (P1: no silent no-op on a blocked preview).
     if (importStep === 'importing') return;
     if (!importPreview?.canImport) {
@@ -811,13 +811,13 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
       });
       const report = payload?.data || {};
       const rejectedNotif = (report.rejectedCount ?? 0) > 0
-        ? ` Â· ${report.rejectedCount} ligne(s) rejetÃ©e(s) non Ã©crite(s)`
+        ? ` · ${report.rejectedCount} ligne(s) rejetée(s) non écrite(s)`
         : '';
       setNotification(
-        `âœ“ Import catalogue rÃ©ussi : ${report.imported ?? 0} crÃ©Ã©(s), ${report.updated ?? 0} mis Ã  jour ` +
-        `(${report.totalRows ?? 0} lignes, marchÃ© ${report.countryCode ?? selectedCountry}/${report.currencyCode ?? selectedCurrency})` +
+        `✓ Import catalogue réussi : ${report.imported ?? 0} créé(s), ${report.updated ?? 0} mis à jour ` +
+        `(${report.totalRows ?? 0} lignes, marché ${report.countryCode ?? selectedCountry}/${report.currencyCode ?? selectedCurrency})` +
         rejectedNotif +
-        (importDefaultTrade.trim() !== '' ? ` â€” mÃ©tier par dÃ©faut Â« ${importDefaultTrade.trim()} Â».` : '.')
+        (importDefaultTrade.trim() !== '' ? ` — métier par défaut « ${importDefaultTrade.trim()} ».` : '.')
       );
       if (typeof onImportCompleted === 'function') onImportCompleted();
       setTimeout(() => setNotification(null), 6000);
@@ -830,37 +830,37 @@ export const AdminDashboardModal: React.FC<AdminDashboardModalProps> = ({
         .map((f: any) => `ligne ${f.row}${f.reference ? ` (${f.reference})` : ''} : ${f.reason}`)
         .join(' | ');
       // The failure MUST describe itself truthfully: a server/transaction error
-      // (500) is NOT Â« aucune ligne importable Â» â€” the preview proved otherwise.
+      // (500) is NOT « aucune ligne importable » — the preview proved otherwise.
       // The real server message is never hidden behind a generic label.
       const isServerError = err?.status === 500;
       setNotification(
         isServerError
-          ? `âœ— Import Ã©chouÃ© â€” la transaction a Ã©tÃ© annulÃ©e, aucune donnÃ©e Ã©crite. ${err?.message || 'Erreur serveur.'}${reasons ? ` | ${reasons}` : ''}`
-          : `âœ— Import annulÃ© â€” aucune donnÃ©e Ã©crite (aucune ligne importable). ${reasons || err?.message || 'Erreur serveur.'}`
+          ? `✗ Import échoué — la transaction a été annulée, aucune donnée écrite. ${err?.message || 'Erreur serveur.'}${reasons ? ` | ${reasons}` : ''}`
+          : `✗ Import annulé — aucune donnée écrite (aucune ligne importable). ${reasons || err?.message || 'Erreur serveur.'}`
       );
       setTimeout(() => setNotification(null), 8000);
       // Stay on the mapping step so the Admin can fix the reported rows.
       setImportStep('mapping');
     }
   };
-  // (Phase A â€” the legacy browser-side CSV parsing and the NÃ—upsertCatalogItem
+  // (Phase A — the legacy browser-side CSV parsing and the N×upsertCatalogItem
   // persist loop were fully removed; import is now one transactional server call.)
 
-  // Sample CSV Download Template â€” the Reference column is REQUIRED: it is the
+  // Sample CSV Download Template — the Reference column is REQUIRED: it is the
   // stable material code (materials.code) that makes re-imports idempotent
   // (re-uploading the same file UPDATES rows in place, never duplicates).
   // The server-side Phase A import expects exactly these headers.
   const handleDownloadCsvSample = () => {
     const sampleCsvContent = 
 `Reference;Nom_Materiau;Categorie;Unite;Prix_TND_HT;Note_Technique;Nom_Arabe
-plaque_ba13_standard;Plaque BA13 Standard 3m2;placo;unit;30;Plaque plÃ¢tre NF 1.2x2.5m;Ø¨Ù„Ø§Ùƒ Ø¨Ø§13 Ø¹Ø§Ø¯ÙŠ
-plaque_ba13_hydrofuge;Plaque BA13 Hydrofuge Vert;placo;unit;46;Plaque hydrofuge piÃ¨ces humides;Ø¨Ù„Ø§Ùƒ Ø¨Ø§13 Ù…Ø§Ø¦ÙŠ
+plaque_ba13_standard;Plaque BA13 Standard 3m2;placo;unit;30;Plaque plâtre NF 1.2x2.5m;بلاك با13 عادي
+plaque_ba13_hydrofuge;Plaque BA13 Hydrofuge Vert;placo;unit;46;Plaque hydrofuge pièces humides;بلاك با13 مائي
 laine_de_roche_50mm;Laine de Roche 50mm 7.2m2;isolation;boite;90;Isolation thermique et phonique;ØµÙˆÙ ØµØ®Ø±ÙŠ 50Ù…Ù…
-enduit_de_joint_interieur_25kg;Enduit de Joint 25kg;peinture;sac;42;SÃ©chage rapide pour calicot;Ù…Ø¹Ø¬ÙˆÙ† ÙØ§ØµÙ„ 25ÙƒØº
-carreau_gres_cerame_60x60;Carreau GrÃ¨s CÃ©rame 60x60;carrelage;mÂ²;38;AntidÃ©rapant R11 grand passage;Ø²Ù„ÙŠØ¬ ØºØ±Ø§Ù†ÙŠØª 60*60
-tube_pex_sanitaire_20mm;Tube PEX Sanitaire 20mm;plomberie;ml;3.5;GainÃ© rouge/bleu 50m;Ø£Ù†Ø¨ÙˆØ¨ ØµØ­ÙŠ 20Ù…Ù…
-parquet_stratifie_8mm_m2;Parquet StratifiÃ© HDF 8mm AC4;sols;mÂ²;34;Haute rÃ©sistance aux passages;Ø¨Ø§Ø±ÙƒÙŠÙ‡ 8Ù…Ù…
-camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;160;Transport agrÃ©Ã© vers dÃ©charge publique;Ù†Ù‚Ù„ Ø§Ù„Ø£Ù†Ù‚Ø§Ø¶`;
+enduit_de_joint_interieur_25kg;Enduit de Joint 25kg;peinture;sac;42;Séchage rapide pour calicot;معجون فاصل 25كغ
+carreau_gres_cerame_60x60;Carreau Grès Cérame 60x60;carrelage;m²;38;Antidérapant R11 grand passage;زليج غرانيت 60*60
+tube_pex_sanitaire_20mm;Tube PEX Sanitaire 20mm;plomberie;ml;3.5;Gainé rouge/bleu 50m;أنبوب صحي 20مم
+parquet_stratifie_8mm_m2;Parquet Stratifié HDF 8mm AC4;sols;m²;34;Haute résistance aux passages;باركيه 8مم
+camion_evacuation_gravats_6m3;Camion Évacuation Gravats 6m3;demolition;unit;160;Transport agréé vers décharge publique;نقل الأنقاض`;
 
     const blob = new Blob([sampleCsvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
@@ -871,11 +871,11 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-    // Phase 1 Feature Usage Analytics â€” the catalogue CSV export succeeded; fire-and-forget.
+    // Phase 1 Feature Usage Analytics — the catalogue CSV export succeeded; fire-and-forget.
     trackFeatureUsage('catalogue:export');
   };
 
-  // â”€â”€ Phase 2: persist entitlement edits via POST/DELETE /api/v1/admin/features â”€â”€
+  // ── Phase 2: persist entitlement edits via POST/DELETE /api/v1/admin/features ──
   const patchFeatureOnServer = async (
     ent: AdminFeatureEntitlement,
     patch: AdminFeaturePatch,
@@ -887,7 +887,7 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
       return;
     }
     const previousRows = serverFeatures;
-    // Optimistic update â€” rolled back if the server rejects the change.
+    // Optimistic update — rolled back if the server rejects the change.
     setServerFeatures(rows => sortEntitlements(rows.map(r => (r.featureKey === ent.featureKey ? applyFeaturePatch(r, patch) : r))));
     setSavingKeys(prev => ({ ...prev, [ent.featureKey]: true }));
     try {
@@ -903,7 +903,7 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
       setTimeout(() => setNotification(null), 3500);
     } catch (err: any) {
       setServerFeatures(previousRows);
-      setFeatureActionError(`Ã‰chec de l'enregistrement (${ent.featureKey}) : ${err?.message || 'erreur serveur'}`);
+      setFeatureActionError(`Échec de l'enregistrement (${ent.featureKey}) : ${err?.message || 'erreur serveur'}`);
     } finally {
       setSavingKeys(prev => ({ ...prev, [ent.featureKey]: false }));
     }
@@ -914,7 +914,7 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
     void patchFeatureOnServer(
       ent,
       { [field]: !ent[field] } as AdminFeaturePatch,
-      `âœ“ "${label}" enregistrÃ© cÃ´tÃ© serveur (${field} â†’ ${!ent[field] ? 'oui' : 'non'}).`
+      `✓ "${label}" enregistré côté serveur (${field} → ${!ent[field] ? 'oui' : 'non'}).`
     );
   };
 
@@ -924,12 +924,12 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
     void patchFeatureOnServer(
       ent,
       { labelFr: next === '' ? null : next },
-      `âœ“ LibellÃ© de "${ent.featureKey}" enregistrÃ© cÃ´tÃ© serveur.`
+      `✓ Libellé de "${ent.featureKey}" enregistré côté serveur.`
     );
   };
 
-  // Phase 3 â€” shared label commit for labelFr / labelAr / labelDerja
-  // (the model's text columns are varchar(200) â€” validated client-side too).
+  // Phase 3 — shared label commit for labelFr / labelAr / labelDerja
+  // (the model's text columns are varchar(200) — validated client-side too).
   const commitLabel = (
     ent: AdminFeatureEntitlement,
     field: 'labelFr' | 'labelAr' | 'labelDerja',
@@ -945,47 +945,47 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
     void patchFeatureOnServer(
       ent,
       { [field]: next === '' ? null : next } as AdminFeaturePatch,
-      `âœ“ LibellÃ© de "${ent.featureKey}" enregistrÃ© cÃ´tÃ© serveur.`
+      `✓ Libellé de "${ent.featureKey}" enregistré côté serveur.`
     );
   };
   const commitUsageLimit = (ent: AdminFeatureEntitlement): void => {
     const raw = (usageLimitDrafts[ent.featureKey] ?? '').trim();
     if (raw === '') {
       if (ent.usageLimit === null) return;
-      void patchFeatureOnServer(ent, { usageLimit: null }, `âœ“ "${ent.labelFr || ent.featureKey}" : limite retirÃ©e (illimitÃ©) â€” enregistrÃ© cÃ´tÃ© serveur.`);
+      void patchFeatureOnServer(ent, { usageLimit: null }, `✓ "${ent.labelFr || ent.featureKey}" : limite retirée (illimité) — enregistré côté serveur.`);
       return;
     }
     const parsed = Number(raw);
     if (!Number.isInteger(parsed) || parsed < 1) {
-      setFeatureActionError(`Limite invalide pour ${ent.featureKey} : entier >= 1, ou vide pour "illimitÃ©".`);
+      setFeatureActionError(`Limite invalide pour ${ent.featureKey} : entier >= 1, ou vide pour "illimité".`);
       return;
     }
     if (parsed === ent.usageLimit) return;
-    void patchFeatureOnServer(ent, { usageLimit: parsed }, `âœ“ "${ent.labelFr || ent.featureKey}" : limite mensuelle = ${parsed} â€” enregistrÃ© cÃ´tÃ© serveur.`);
+    void patchFeatureOnServer(ent, { usageLimit: parsed }, `✓ "${ent.labelFr || ent.featureKey}" : limite mensuelle = ${parsed} — enregistré côté serveur.`);
   };
 
   const handleDeactivateFeature = async (ent: AdminFeatureEntitlement): Promise<void> => {
-    if (!window.confirm(`DÃ©sactiver (soft-delete) "${ent.labelFr || ent.featureKey}" cÃ´tÃ© serveur ?`)) return;
+    if (!window.confirm(`Désactiver (soft-delete) "${ent.labelFr || ent.featureKey}" côté serveur ?`)) return;
     const previousRows = serverFeatures;
     setServerFeatures(rows => sortEntitlements(rows.map(r => (r.featureKey === ent.featureKey ? { ...r, isActive: false } : r))));
     setSavingKeys(prev => ({ ...prev, [ent.featureKey]: true }));
     try {
       await deactivateAdminFeature(ent.featureKey);
       setFeatureActionError(null);
-      setNotification(`âœ“ FonctionnalitÃ© "${ent.labelFr || ent.featureKey}" dÃ©sactivÃ©e cÃ´tÃ© serveur.`);
+      setNotification(`✓ Fonctionnalité "${ent.labelFr || ent.featureKey}" désactivée côté serveur.`);
       setTimeout(() => setNotification(null), 3500);
     } catch (err: any) {
       setServerFeatures(previousRows);
-      setFeatureActionError(`Ã‰chec de la dÃ©sactivation (${ent.featureKey}) : ${err?.message || 'erreur serveur'}`);
+      setFeatureActionError(`Échec de la désactivation (${ent.featureKey}) : ${err?.message || 'erreur serveur'}`);
     } finally {
       setSavingKeys(prev => ({ ...prev, [ent.featureKey]: false }));
     }
   };
 
-  // â”€â”€ "+ Ajouter une fonctionnalitÃ©" â€” create a new Feature Entitlement â”€â”€â”€â”€â”€â”€
-  // Persists through the SAME single system (POST /api/v1/admin/features â†’
+  // ── "+ Ajouter une fonctionnalité" — create a new Feature Entitlement ──────
+  // Persists through the SAME single system (POST /api/v1/admin/features →
   // feature_entitlements); the returned server row is inserted immediately.
-  // P3: the new row is a REAL entitlement â€” it is applied by the backend on
+  // P3: the new row is a REAL entitlement — it is applied by the backend on
   // the next access check (no separate paywall switch to flip).
   const [showCreateFeatureForm, setShowCreateFeatureForm] = useState(false);
   const [featureCreateDraft, setFeatureCreateDraft] = useState<AdminFeatureCreateDraft>(EMPTY_FEATURE_CREATE_DRAFT);
@@ -998,7 +998,7 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
       serverFeatures.map((r) => r.featureKey)
     );
     if (error || !payload) {
-      setFeatureCreateError(error || 'DonnÃ©es invalides.');
+      setFeatureCreateError(error || 'Données invalides.');
       return;
     }
     setFeatureCreateSaving(true);
@@ -1010,11 +1010,11 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
       setFeatureCreateDraft(EMPTY_FEATURE_CREATE_DRAFT);
       setShowCreateFeatureForm(false);
       setFeatureActionError(null);
-      setNotification(`âœ“ FonctionnalitÃ© "${saved.labelFr || saved.featureKey}" crÃ©Ã©e cÃ´tÃ© serveur.`);
+      setNotification(`✓ Fonctionnalité "${saved.labelFr || saved.featureKey}" créée côté serveur.`);
       setTimeout(() => setNotification(null), 3500);
     } catch (err: any) {
       setFeatureCreateError(
-        `Ã‰chec de la crÃ©ation (${payload.featureKey}) : ${err?.message || 'erreur serveur'}`
+        `Échec de la création (${payload.featureKey}) : ${err?.message || 'erreur serveur'}`
       );
     } finally {
       setFeatureCreateSaving(false);
@@ -1024,7 +1024,7 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
   // Save Commission Configuration Handler
   const handleSaveCommissions = (e: React.FormEvent) => {
     e.preventDefault();
-    setNotification('âœ“ ParamÃ¨tres des commissions et grille tarifaire KONSTRIVO 2026 enregistrÃ©s avec succÃ¨s !');
+    setNotification('✓ Paramètres des commissions et grille tarifaire KONSTRIVO 2026 enregistrés avec succès !');
     setTimeout(() => setNotification(null), 3500);
   };
 
@@ -1032,7 +1032,7 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
   const handleCreateArtisan = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newArtisan.name || !newArtisan.phone) {
-      alert('Veuillez remplir au moins le nom et le numÃ©ro de tÃ©lÃ©phone.');
+      alert('Veuillez remplir au moins le nom et le numéro de téléphone.');
       return;
     }
 
@@ -1040,7 +1040,7 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
     const cleanCompany = sanitizeInput(newArtisan.company || newArtisan.name);
     const cleanPhone = sanitizeInput(newArtisan.phone);
     const cleanWhatsapp = sanitizeInput(newArtisan.whatsapp || newArtisan.phone.replace(/[^0-9]/g, ''));
-    const cleanBio = sanitizeInput(newArtisan.bio) || 'Prestataire spÃ©cialisÃ© certifiÃ© sur la plateforme KONSTRIVO BTP.';
+    const cleanBio = sanitizeInput(newArtisan.bio) || 'Prestataire spécialisé certifié sur la plateforme KONSTRIVO BTP.';
 
     const createdItem: ArtisanDirectoryItem = {
       id: `art_admin_${Date.now()}`,
@@ -1051,7 +1051,7 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
       region: newArtisan.region,
       rating: 5.0,
       reviewsCount: 1,
-      // Rule 7 (Phase 2 fix F1): verification is independent of PRO â€” a newly
+      // Rule 7 (Phase 2 fix F1): verification is independent of PRO — a newly
       // admin-registered artisan starts UNVERIFIED (set only by a real
       // verification flow, never from the PRO flag).
       isVerified: false,
@@ -1062,12 +1062,12 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
       bio: cleanBio,
       hourlyRateTnd: Number(newArtisan.hourlyRateTnd) || 20,
       squareMeterRateTnd: Number(newArtisan.squareMeterRateTnd) || 18,
-      services: ['Ouvrages Placo BA13', 'AmÃ©nagement & Finitions'],
-      badges: newArtisan.isPro2026 ? ['CertifiÃ© KONSTRIVO PRO 2026', 'Inscrit par Administrateur'] : ['Inscrit par Administrateur']
+      services: ['Ouvrages Placo BA13', 'Aménagement & Finitions'],
+      badges: newArtisan.isPro2026 ? ['Certifié KONSTRIVO PRO 2026', 'Inscrit par Administrateur'] : ['Inscrit par Administrateur']
     };
 
     onUpdateArtisans([createdItem, ...artisans]);
-    setNotification(`âœ“ Nouvel artisan "${cleanName}" ajoutÃ© avec succÃ¨s Ã  l'annuaire !`);
+    setNotification(`✓ Nouvel artisan "${cleanName}" ajouté avec succès à l'annuaire !`);
     
     // Reset Form
     setNewArtisan({
@@ -1121,7 +1121,7 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
     ? devisHistory.map(d => ({
         id: d.id || d.reference || 'DEV-2026',
         clientName: d.clientName || 'Client Particulier',
-        projectTitle: d.projectTitle || (d.items && d.items[0] ? d.items[0].title : 'Travaux Placo & AmÃ©nagement'),
+        projectTitle: d.projectTitle || (d.items && d.items[0] ? d.items[0].title : 'Travaux Placo & Aménagement'),
         surfaceArea: d.items && d.items[0] ? d.items[0].quantity : 120,
         totalTnd: d.totalTnd || d.total || 0,
         date: d.date || new Date().toISOString().split('T')[0],
@@ -1139,8 +1139,8 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
         },
         {
           id: 'DEV-2026-080',
-          clientName: 'RÃ©sidence Ennasr 2',
-          projectTitle: 'Cloison SÃ©paration Double BA13',
+          clientName: 'Résidence Ennasr 2',
+          projectTitle: 'Cloison Séparation Double BA13',
           surfaceArea: 210,
           totalTnd: 14200,
           date: '2026-08-19',
@@ -1149,7 +1149,7 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
         {
           id: 'DEV-2026-079',
           clientName: 'Boutique Lac 2',
-          projectTitle: 'Plafond DÃ©montable 60x60 Vinyl',
+          projectTitle: 'Plafond Démontable 60x60 Vinyl',
           surfaceArea: 95,
           totalTnd: 5180,
           date: '2026-08-18',
@@ -1158,7 +1158,7 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
         {
           id: 'DEV-2026-078',
           clientName: 'Villa Hammamet Nord',
-          projectTitle: 'Habillage ExtÃ©rieur Aquapanel Ciment',
+          projectTitle: 'Habillage Extérieur Aquapanel Ciment',
           surfaceArea: 180,
           totalTnd: 22400,
           date: '2026-08-16',
@@ -1170,8 +1170,8 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
   // when it fits and degrades to top-aligned when it overflows, so the header,
   // tabs and close button can never be clipped above the scrollable top.
   return (
-    <div className="fixed inset-0 z-50 flex justify-center p-3 sm:p-4 bg-black/90 backdrop-blur-sm md:backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-5xl bg-[#0b0f17] border border-amber-500/30 rounded-3xl shadow-2xl overflow-hidden m-auto text-white">
+    <div className="fixed inset-0 z-50 flex items-start sm:items-center justify-center p-3 sm:p-4 bg-black/90 backdrop-blur-sm md:backdrop-blur-md overflow-y-auto overscroll-contain">
+      <div className="relative w-full max-w-5xl max-h-[calc(100dvh-1.5rem)] sm:max-h-[calc(100vh-2rem)] bg-[#0b0f17] border border-amber-500/30 rounded-3xl shadow-2xl overflow-y-auto overscroll-contain m-auto text-white">
         
         {/* Top Header */}
         <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-amber-950/50 p-4 sm:p-5 border-b border-slate-800 flex items-center justify-between gap-3">
@@ -1181,7 +1181,7 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
             </div>
             <div>
               <h3 className="text-base sm:text-lg font-black text-white flex items-center gap-2 flex-wrap">
-                <span>Espace Administration GÃ©nÃ©ral KONSTRIVO</span>
+                <span>Espace Administration Général KONSTRIVO</span>
                 {isCurrentlyAdmin && (
                   <span className="px-2.5 py-0.5 text-[10px] font-black uppercase bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full font-mono flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3" />
@@ -1190,7 +1190,7 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
                 )}
               </h3>
               <p className="text-xs text-slate-400">
-                Panneau propriÃ©taire : gestion globale des artisans, tarifs barÃ¨mes et devis calculÃ©s
+                Panneau propriétaire : gestion globale des artisans, tarifs barèmes et devis calculés
               </p>
             </div>
           </div>
@@ -1200,10 +1200,10 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
               <button
                 onClick={handleAdminLogout}
                 className="px-3.5 py-2 bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 border border-rose-500/40 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
-                title="Se dÃ©connecter de l'administration"
+                title="Se déconnecter de l'administration"
               >
                 <LogOut className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">DÃ©connexion Admin</span>
+                <span className="hidden sm:inline">Déconnexion Admin</span>
               </button>
             )}
             <button
@@ -1225,9 +1225,9 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
                 <div className="inline-flex p-3 bg-amber-500/10 border border-amber-500/30 rounded-2xl text-amber-400 mb-1">
                   <KeyRound className="w-8 h-8" />
                 </div>
-                <h4 className="text-lg font-black text-white">Authentification PropriÃ©taire</h4>
+                <h4 className="text-lg font-black text-white">Authentification Propriétaire</h4>
                 <p className="text-xs text-slate-400">
-                  Veuillez saisir vos identifiants administrateur pour accÃ©der Ã  l'Espace Administration GÃ©nÃ©ral.
+                  Veuillez saisir vos identifiants administrateur pour accéder à l'Espace Administration Général.
                 </p>
               </div>
 
@@ -1257,7 +1257,7 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
                     type="password"
                     value={adminPassword}
                     onChange={(e) => setAdminPassword(e.target.value)}
-                    placeholder="â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
+                    placeholder="••••••••"
                     required
                     className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono"
                   />
@@ -1298,11 +1298,11 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
                   <div className="flex items-center gap-2">
                     <span className="text-xs font-black text-white">Bridge REST API & Mobile Sync</span>
                     <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase font-mono">
-                      PrÃªt (Flutter / React Native)
+                      Prêt (Flutter / React Native)
                     </span>
                   </div>
                   <p className="text-[11px] text-slate-400">
-                    SchÃ©mas JSON synchronisÃ©s pour l'application Mobile & Web. Jetons JWT & Hachage SHA-256 actifs.
+                    Schémas JSON synchronisés pour l'application Mobile & Web. Jetons JWT & Hachage SHA-256 actifs.
                   </p>
                 </div>
               </div>
@@ -1314,7 +1314,7 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
                   className="px-3 py-1.5 bg-slate-900 hover:bg-slate-850 text-amber-400 hover:text-amber-300 border border-slate-800 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
                 >
                   <KeyRound className="w-3.5 h-3.5" />
-                  <span>{showDeveloperApiStatus ? 'Masquer DÃ©tails API' : 'Inspecter Endpoints REST'}</span>
+                  <span>{showDeveloperApiStatus ? 'Masquer Détails API' : 'Inspecter Endpoints REST'}</span>
                 </button>
               </div>
             </div>
@@ -1333,13 +1333,13 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs font-mono">
                   <div className="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
                     <div className="text-[10px] text-emerald-400 font-bold">GET /api/v1/rates</div>
-                    <div className="text-slate-300 text-[11px] mt-0.5">Payload: {editableRates.length} MatÃ©riaux BTP</div>
+                    <div className="text-slate-300 text-[11px] mt-0.5">Payload: {editableRates.length} Matériaux BTP</div>
                     <div className="text-[10px] text-slate-500 mt-1">Format: MaterialRate[] JSON</div>
                   </div>
 
                   <div className="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
                     <div className="text-[10px] text-emerald-400 font-bold">GET /api/v1/artisans</div>
-                    <div className="text-slate-300 text-[11px] mt-0.5">Payload: {artisans.length} Artisans qualifiÃ©s</div>
+                    <div className="text-slate-300 text-[11px] mt-0.5">Payload: {artisans.length} Artisans qualifiés</div>
                     <div className="text-[10px] text-slate-500 mt-1">Format: ArtisanDirectoryItem[] JSON</div>
                   </div>
 
@@ -1352,7 +1352,7 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
                   <div className="p-2.5 bg-slate-950 rounded-xl border border-slate-800">
                     <div className="text-[10px] text-emerald-400 font-bold">GET /api/v1/features</div>
                     <div className="text-slate-300 text-[11px] mt-0.5">
-                      {featureLoading ? 'Plan: loadingâ€¦' : `Plan: ${featurePlan} Â· Fonctions: ${featureAccess.length}`}
+                      {featureLoading ? 'Plan: loading…' : `Plan: ${featurePlan} · Fonctions: ${featureAccess.length}`}
                     </div>
                     <div className="text-[10px] text-slate-500 mt-1">
                       Format: { 'planCode: free|pro, features: FeatureAccess[]' }
@@ -1415,14 +1415,14 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
                 </div>
                 <div className="text-xl font-black text-emerald-400 font-mono mt-1">{proArtisansCount}</div>
                 <div className="flex items-center justify-between mt-1">
-                  <span className="text-[10px] text-emerald-400/90 block font-semibold">âœ“ Badges VÃ©rifiÃ©s</span>
+                  <span className="text-[10px] text-emerald-400/90 block font-semibold">✓ Badges Vérifiés</span>
                   <span className="text-[10px] text-emerald-400 font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
                     Voir <ArrowRight className="w-2.5 h-2.5" />
                   </span>
                 </div>
               </button>
 
-              {/* Card 3: Devis CalculÃ©s -> Switches to Stats & Devis tab */}
+              {/* Card 3: Devis Calculés -> Switches to Stats & Devis tab */}
               <button
                 type="button"
                 onClick={() => setActiveAdminTab('stats')}
@@ -1433,19 +1433,19 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
                 }`}
               >
                 <div className="flex items-center justify-between text-slate-400 text-[10px] font-bold uppercase">
-                  <span>Devis CalculÃ©s</span>
+                  <span>Devis Calculés</span>
                   <FileText className="w-3.5 h-3.5 text-amber-400" />
                 </div>
                 <div className="text-xl font-black text-amber-400 font-mono mt-1">{totalDevisCount}</div>
                 <div className="flex items-center justify-between mt-1">
                   <span className="text-[10px] text-slate-400 block font-mono">Vol: {totalDevisVolumeTnd.toLocaleString('fr-TN')} DT</span>
                   <span className="text-[10px] text-amber-400 font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
-                    DÃ©tails <ArrowRight className="w-2.5 h-2.5" />
+                    Détails <ArrowRight className="w-2.5 h-2.5" />
                   </span>
                 </div>
               </button>
 
-              {/* Card 4: Base MatÃ©riaux -> Switches to Prices tab */}
+              {/* Card 4: Base Matériaux -> Switches to Prices tab */}
               <button
                 type="button"
                 onClick={() => setActiveAdminTab('prices')}
@@ -1456,14 +1456,14 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
                 }`}
               >
                 <div className="flex items-center justify-between text-slate-400 text-[10px] font-bold uppercase">
-                  <span>Base MatÃ©riaux</span>
+                  <span>Base Matériaux</span>
                   <DollarSign className="w-3.5 h-3.5 text-sky-400" />
                 </div>
                 <div className="text-xl font-black text-sky-400 font-mono mt-1">{rates.length}</div>
                 <div className="flex items-center justify-between mt-1">
                   <span className="text-[10px] text-slate-400 block">Tarifs 2026 Actifs</span>
                   <span className="text-[10px] text-sky-400 font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
-                    Ã‰diter <ArrowRight className="w-2.5 h-2.5" />
+                    Éditer <ArrowRight className="w-2.5 h-2.5" />
                   </span>
                 </div>
               </button>
@@ -1489,7 +1489,7 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
                 <span>Gestion des Artisans ({artisans.length})</span>
               </button>
 
-              {/* Tab 2: BarÃ¨mes de Prix BTP */}
+              {/* Tab 2: Barèmes de Prix BTP */}
               <button
                 type="button"
                 onClick={() => setActiveAdminTab('prices')}
@@ -1500,10 +1500,10 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
                 }`}
               >
                 <DollarSign className="w-4 h-4" />
-                <span>BarÃ¨mes de Prix BTP ({rates.length})</span>
+                <span>Barèmes de Prix BTP ({rates.length})</span>
               </button>
 
-              {/* Tab 2b: MÃ©tiers / Trades (Admin â†’ MÃ©tiers) */}
+              {/* Tab 2b: Métiers / Trades (Admin → Métiers) */}
               <button
                 type="button"
                 onClick={() => setActiveAdminTab('trades')}
@@ -1514,7 +1514,7 @@ camion_evacuation_gravats_6m3;Camion Ã‰vacuation Gravats 6m3;demolition;unit;
                 }`}
               >
                 <Layers className="w-4 h-4" />
-                <span>MÃ©tiers (Outils &amp; Services)</span>
+                <span>Métiers (Outils &amp; Services)</span>
               </button>
 
               {/* Tab 3: Nouveau Profil Artisan */}
@@ -1604,7 +1604,7 @@ ${
                       type="text"
                       value={artisanSearch}
                       onChange={(e) => setArtisanSearch(e.target.value)}
-                      placeholder="Rechercher nom, ville, spÃ©cialitÃ©..."
+                      placeholder="Rechercher nom, ville, spécialité..."
                       className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
                     />
                   </div>
@@ -1647,7 +1647,7 @@ ${
                       <tr>
                         <th className="p-3">Artisan / Entreprise</th>
                         <th className="p-3">Ville / Gouvernorat</th>
-                        <th className="p-3">TÃ©lÃ©phone</th>
+                        <th className="p-3">Téléphone</th>
                         <th className="p-3">Abonnement / Plan</th>
                         <th className="p-3 text-right">Actions Administrateur</th>
                       </tr>
@@ -1656,7 +1656,7 @@ ${
                       {filteredArtisans.length === 0 ? (
                         <tr>
                           <td colSpan={5} className="p-8 text-center text-slate-500">
-                            Aucun artisan ne correspond Ã  votre recherche.
+                            Aucun artisan ne correspond à votre recherche.
                           </td>
                         </tr>
                       ) : (
@@ -1710,7 +1710,7 @@ ${
                                       : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 border-emerald-400 shadow-md shadow-emerald-500/20'
                                   }`}
                                 >
-                                  {artisan.isPro2026 ? 'RÃ©trograder' : 'Activate PRO'}
+                                  {artisan.isPro2026 ? 'Rétrograder' : 'Activate PRO'}
                                 </button>
 
                                 <button
@@ -1746,8 +1746,8 @@ ${
                   className="hidden"
                 />
 
-                {/* Phase C â€” Smart Mapping panel: detect columns â†’ map fields â†’
-                    preview â†’ validate â†’ import. Rendered between the upload
+                {/* Phase C — Smart Mapping panel: detect columns → map fields →
+                    preview → validate → import. Rendered between the upload
                     button click and the transactional import. */}
                 {importStep !== 'idle' && importPreview && (
                   <div className="bg-slate-950 p-4 rounded-2xl border border-emerald-500/30 space-y-3">
@@ -1755,13 +1755,13 @@ ${
                       <div>
                         <h4 className="text-xs font-bold text-emerald-400 flex items-center gap-2">
                           <FileSpreadsheet className="w-4 h-4" />
-                          <span>Import intelligent â€” correspondance des colonnes</span>
+                          <span>Import intelligent — correspondance des colonnes</span>
                         </h4>
                         <p className="text-[11px] text-slate-400 mt-0.5">
                           {String(importPreview.fileName || '')} Â· {importPreview.fileType === 'xlsx' ? 'Excel (xlsx)' : 'CSV'}
                           {importPreview.sheetName ? ` Â· feuille Â« ${importPreview.sheetName} Â»` : ''}
-                          {' '}Â· {importPreview.totalRows ?? 0} ligne(s) dÃ©tectÃ©e(s)
-                          {' '}Â· marchÃ© {importPreview.countryCode || selectedCountry}/{importPreview.currencyCode || selectedCurrency}
+                          {' '}· {importPreview.totalRows ?? 0} ligne(s) détectée(s)
+                          {' '}· marché {importPreview.countryCode || selectedCountry}/{importPreview.currencyCode || selectedCurrency}
                         </p>
                       </div>
                       <button
@@ -1775,7 +1775,7 @@ ${
 
                     {visibleUnmappedRequired(importPreview, importDefaultTrade).length > 0 && (
                       <div className="text-[11px] text-rose-300 bg-rose-950/40 border border-rose-500/30 rounded-xl px-3 py-2">
-                        âœ— Champs obligatoires non mappÃ©s : {visibleUnmappedRequired(importPreview, importDefaultTrade).join(', ')} â€” l'import est bloquÃ© jusqu'Ã  leur correspondance.
+                        ✗ Champs obligatoires non mappés : {visibleUnmappedRequired(importPreview, importDefaultTrade).join(', ')} — l'import est bloqué jusqu'à leur correspondance.
                       </div>
                     )}
                     {(importPreview.mappingErrors || []).length > 0 && (
@@ -1786,15 +1786,15 @@ ${
                     {(importPreview.rejected || []).length > 0 && (
                       <div className="text-[11px] text-amber-300 bg-amber-950/30 border border-amber-500/30 rounded-xl px-3 py-2">
                         {(importPreview.validCount ?? 0) > 0 ? (
-                          <>âš  {importPreview.rejectedCount} ligne(s) rejetÃ©e(s) â€” non Ã©crites ; les {importPreview.validCount} ligne(s) importable(s) ci-dessous seront importÃ©es :</>
+                          <>⚠ {importPreview.rejectedCount} ligne(s) rejetée(s) — non écrites ; les {importPreview.validCount} ligne(s) importable(s) ci-dessous seront importées :</>
                         ) : (
-                          <>âœ— {importPreview.rejectedCount} ligne(s) rejetÃ©e(s) â€” aucune ligne importable, l'import reste bloquÃ© :</>
+                          <>✗ {importPreview.rejectedCount} ligne(s) rejetée(s) — aucune ligne importable, l'import reste bloqué :</>
                         )}
                         {(importPreview.rejected || []).slice(0, 10).map((f: any, i: number) => (
                           <div key={i} className="mt-0.5">ligne {f.row}{f.reference ? ` (${f.reference})` : ''} : {f.reason}</div>
                         ))}
                         {(importPreview.rejectedCount ?? 0) > (importPreview.rejected || []).length && (
-                          <div className="mt-0.5 text-slate-400">â€¦ et {(importPreview.rejectedCount ?? 0) - (importPreview.rejected || []).length} autre(s) (rapport complet Ã  l'import).</div>
+                          <div className="mt-0.5 text-slate-400">… et {(importPreview.rejectedCount ?? 0) - (importPreview.rejected || []).length} autre(s) (rapport complet à l'import).</div>
                         )}
                       </div>
                     )}
@@ -1802,11 +1802,11 @@ ${
                     {/* Mapping selectors — DISPLAY ONLY, generic, driven by the
                         server field registry. The value shown is EXACTLY the
                         mapping the pipeline applied (`appliedMapping` returned by
-                        POST /catalog/preview â€” the very object /catalog/import
+                        POST /catalog/preview — the very object /catalog/import
                         consumes), with the Admin's manual deltas (importMapping)
                         layered on top. The mapped source column is also printed
                         next to the field label AND summarised above the grid, so a
-                        field the server mapped can never look Â« â€” Non mappÃ© â€” Â». */}
+                        field the server mapped can never look « — Non mappé — ». */}
                     {(Object.keys(importPreview.appliedMapping || {}).length > 0) && (
                       <div className="bg-slate-950 border border-emerald-500/20 rounded-xl px-3 py-2">
                         <div className="text-[10px] uppercase tracking-wide text-slate-400 mb-1">
@@ -1818,7 +1818,7 @@ ${
                               <span className="text-slate-300">
                                 {(importPreview.fields || []).find((f: any) => f.key === key)?.label || key}
                               </span>
-                              <span className="text-slate-500"> â† </span>
+                              <span className="text-slate-500"> ← </span>
                               <span className="text-emerald-300">{String(src)}</span>
                             </span>
                           ))}
@@ -1835,28 +1835,28 @@ ${
                         const current: string = hasManualDelta ? (importMapping[field.key] || '') : serverValue;
                         // The server value MUST have a matching <option>: a controlled
                         // <select> whose value matches no option falls back to its
-                        // FIRST option (Â« â€” Non mappÃ© â€” Â»), which is how a mapped
+                        // FIRST option (« — Non mappé — »), which is how a mapped
                         // field could LOOK unmapped. The mapped column is therefore
                         // always selectable, even if it is missing from the detected
                         // column list (BOM / whitespace / case drift).
                         const hasMatchingOption = detectedColumns.some((col: any) => String(col.source) === current);
-                        // GUARANTEE â€” a field the server mapped is NEVER displayed as
-                        // Â« â€” Non mappÃ© â€” Â»: whenever a NON-EMPTY value is selected
+                        // GUARANTEE — a field the server mapped is NEVER displayed as
+                        // « — Non mappé — »: whenever a NON-EMPTY value is selected
                         // (the SERVER's `appliedMapping` or an Admin manual choice)
                         // the <select> MUST own an exact option for it. Otherwise the
-                        // browser silently falls back to its FIRST option â€” the
-                        // Â« â€” Non mappÃ© â€” Â» placeholder â€” and a mapped field LOOKS
+                        // browser silently falls back to its FIRST option — the
+                        // « — Non mappé — » placeholder — and a mapped field LOOKS
                         // unmapped. The server-mapped column therefore gets its own
                         // option ONLY when `detectedColumns` does not already carry
-                        // it, and Â« â€” Non mappÃ© â€” Â» survives for EMPTY values only.
+                        // it, and « — Non mappé — » survives for EMPTY values only.
                         const serverMappedOptionRequired = current !== '' && !hasMatchingOption;
                         return (
                           <div key={field.key} className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-xl px-2.5 py-1.5">
                             <span className={`text-[11px] font-bold w-40 shrink-0 break-words ${field.required ? 'text-emerald-300' : 'text-slate-400'}`}>
                               {field.label}{field.required ? ' *' : ''}
-                              {/* The ACTUAL detected mapping, visible as text â€”
+                              {/* The ACTUAL detected mapping, visible as text —
                                   a âœ“ makes "detected by the engine" impossible to
-                                  confuse with an empty Â« â€” Non mappÃ© â€” Â» choice. */}
+                                  confuse with an empty « — Non mappé — » choice. */}
                               {current !== '' && (
                                 <span className="text-emerald-400 font-mono" title={`Â« ${current} Â» â†’ ${field.label}`}> ✓ {current}</span>
                               )}
@@ -1867,7 +1867,7 @@ ${
                               disabled={importStep === 'importing'}
                               className="flex-1 bg-slate-900 text-slate-100 text-[11px] font-mono border border-slate-700 rounded-lg px-1.5 py-1 outline-none cursor-pointer disabled:opacity-60"
                             >
-                              <option value="">â€” Non mappÃ© â€”</option>
+                              <option value="">— Non mappé —</option>
                               {serverMappedOptionRequired && (
                                 <option value={current}>{current} (mapping serveur)</option>
                               )}
@@ -1886,27 +1886,27 @@ ${
                       </div>
                     </div>
 
-                    {/* Detected correspondence â€” one explicit line per SOURCE
+                    {/* Detected correspondence — one explicit line per SOURCE
                         column of the file (server `columnAssignments`): the
                         canonical field it feeds, or its role (designation
                         fallback / read-but-unused). Nothing detected is left
-                        looking like an unexplained Â« â€” Non mappÃ© â€” Â». */}
+                        looking like an unexplained « — Non mappé — ». */}
                     {(importPreview.columnAssignments || []).length > 0 && (
                       <div className="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2">
                         <div className="text-[10px] uppercase tracking-wide text-slate-400 mb-1">
-                          Correspondances dÃ©tectÃ©es (colonne du fichier â†’ champ)
+                          Correspondances détectées (colonne du fichier → champ)
                         </div>
                         <div className="flex flex-wrap gap-x-3 gap-y-1">
                           {(importPreview.columnAssignments || []).map((a: any) => {
                             const label = a.role === 'field'
                               ? ((importPreview.fields || []).find((f: any) => f.key === a.key)?.label || a.key)
                               : a.role === 'name_fallback'
-                                ? 'DÃ©signation (secours si la colonne principale est vide)'
-                                : 'â€” lu, non utilisÃ© (aucun champ canonique) â€”';
+                                ? 'Désignation (secours si la colonne principale est vide)'
+                                : '— lu, non utilisé (aucun champ canonique) —';
                             return (
                               <span key={a.source} className="text-[10px] font-mono">
                                 <span className="text-slate-300">{a.source}</span>
-                                <span className="text-slate-500"> â†’ </span>
+                                <span className="text-slate-500"> → </span>
                                 <span className={a.role === 'field' ? 'text-emerald-300' : a.role === 'name_fallback' ? 'text-sky-300' : 'text-slate-500'}>{label}</span>
                               </span>
                             );
@@ -1915,16 +1915,16 @@ ${
                       </div>
                     )}
 
-                    {/* "MÃ©tier par dÃ©faut" â€” an OPTION for the rows whose file
+                    {/* "Métier par défaut" — an OPTION for the rows whose file
                         has no trade column (a grouping such as
                         `department` = 'Building Materials' is never turned into
-                        a mÃ©tier). The import is NOT blocked without it: those
-                        rows are imported without a mÃ©tier and reported for
-                        review. Never auto-selected â€” explicit admin choice only. */}
+                        a métier). The import is NOT blocked without it: those
+                        rows are imported without a métier and reported for
+                        review. Never auto-selected — explicit admin choice only. */}
                     {isDefaultTradeRequired(importPreview) && (
                       <div className="flex flex-wrap items-center gap-2 bg-amber-950/20 border border-amber-500/30 rounded-xl px-2.5 py-2">
                         <span className="text-[11px] font-bold text-amber-300">
-                          MÃ©tier par dÃ©faut â€” optionnel <span className="text-amber-500/80">(lignes sans colonne de mÃ©tier : importÃ©es sans mÃ©tier et signalÃ©es Â« Ã  vÃ©rifier Â»)</span>
+                          Métier par défaut — optionnel <span className="text-amber-500/80">(lignes sans colonne de métier : importées sans métier et signalées « à vérifier »)</span>
                         </span>
                         <select
                           value={importDefaultTradeChoice}
@@ -1932,11 +1932,11 @@ ${
                           disabled={importStep === 'importing'}
                           className="bg-slate-900 text-amber-100 text-[11px] font-mono border border-amber-700/60 rounded-lg px-1.5 py-1 outline-none cursor-pointer disabled:opacity-60"
                         >
-                          <option value="">â€” Choisir le mÃ©tier des lignes sans Â« Categorie Â» â€”</option>
+                          <option value="">— Choisir le métier des lignes sans « Categorie » —</option>
                           {knownTradeCategories.map((c) => (
                             <option key={c} value={c}>{c}</option>
                           ))}
-                          <option value={CUSTOM_DEFAULT_TRADE}>Autre (code personnalisÃ©)â€¦</option>
+                          <option value={CUSTOM_DEFAULT_TRADE}>Autre (code personnalisé)…</option>
                         </select>
                         {importDefaultTradeChoice === CUSTOM_DEFAULT_TRADE && (
                           <input
@@ -1954,7 +1954,7 @@ ${
                       </div>
                     )}
 
-                    {/* P1 â€” persistent block reason: a blocked "Confirmer l'import"
+                    {/* P1 — persistent block reason: a blocked "Confirmer l'import"
                         NEVER fails silently; the exact server-deterministic
                         reason is displayed until a valid preview replaces it. */}
                     {importBlockReason && (
@@ -1990,7 +1990,7 @@ ${
                             </tr>
                           ))}
                           {(!importPreview.sampleRows || importPreview.sampleRows.length === 0) && (
-                            <tr><td className="px-2 py-2 text-slate-500" colSpan={7}>Aucune ligne valide Ã  prÃ©visualiser.</td></tr>
+                            <tr><td className="px-2 py-2 text-slate-500" colSpan={7}>Aucune ligne valide à prévisualiser.</td></tr>
                           )}
                         </tbody>
                       </table>
@@ -1998,18 +1998,18 @@ ${
 
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-[11px] text-slate-400">
-                        âœ… {importPreview.validCount ?? 0} ligne(s) importable(s) Â· âš ï¸ {importPreview.rejectedCount ?? 0} rejetÃ©e(s) Â·
-                        {' '}seules les lignes valides seront Ã©crites (une seule transaction â€” rien n'est Ã©crit sans confirmation).
+                        ✅ {importPreview.validCount ?? 0} ligne(s) importable(s) · ⚠️ {importPreview.rejectedCount ?? 0} rejetée(s) ·
+                        {' '}seules les lignes valides seront écrites (une seule transaction — rien n'est écrit sans confirmation).
                       </p>
                       <button
                         type="button"
                         onClick={handleConfirmImport}
                         disabled={importStep === 'importing'}
-                        title="Import transactionnel cÃ´tÃ© serveur : seules les lignes valides sont Ã©crites (une transaction), les lignes rejetÃ©es sont signalÃ©es avec leur raison et jamais Ã©crites. Si l'aperÃ§u bloque l'import, la raison exacte s'affiche au-dessus."
+                        title="Import transactionnel côté serveur : seules les lignes valides sont écrites (une transaction), les lignes rejetées sont signalées avec leur raison et jamais écrites. Si l'aperçu bloque l'import, la raison exacte s'affiche au-dessus."
                         className="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black rounded-xl shadow-lg shadow-emerald-500/20 transition-all cursor-pointer flex items-center gap-1.5 border border-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         <CheckCircle2 className="w-4 h-4" />
-                        <span>{importStep === 'importing' ? 'Import en coursâ€¦' : `Importer les lignes valides (${importPreview.validCount ?? 0} lignes)`}</span>
+                        <span>{importStep === 'importing' ? 'Import en cours…' : `Importer les lignes valides (${importPreview.validCount ?? 0} lignes)`}</span>
                       </button>
                     </div>
                   </div>
@@ -2019,15 +2019,15 @@ ${
                   <div>
                     <h4 className="text-xs font-bold text-white flex items-center gap-2">
                       <FileSpreadsheet className="w-4 h-4 text-emerald-400" />
-                      <span>Ã‰diteur & Importation Catalogue MatÃ©riaux BTP 2026</span>
+                      <span>Éditeur & Importation Catalogue Matériaux BTP 2026</span>
                     </h4>
                     <p className="text-[11px] text-slate-400">
-                      GÃ©rez vos tarifs unitaires ou importez un catalogue CSV complet pour mettre Ã  jour les calculateurs en direct.
+                      Gérez vos tarifs unitaires ou importez un catalogue CSV complet pour mettre à jour les calculateurs en direct.
                     </p>
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2">
-                    {/* Step 7 â€” Multi-Market selector: target Country + Currency
+                    {/* Step 7 — Multi-Market selector: target Country + Currency
                         for persisted official prices. Driven by the API-first
                         country registry (local COUNTRIES_CONFIG fallback), so a
                         new market added as a DB row needs no schema/code change. */}
@@ -2042,7 +2042,7 @@ ${
                           const cfg = findCountryConfig(cCode);
                           if (cfg) setSelectedCurrency(cfg.defaultCurrency);
                         }}
-                        title="MarchÃ© cible (pays)"
+                        title="Marché cible (pays)"
                         className="bg-slate-900 text-slate-100 text-xs font-mono border border-slate-700 rounded-lg px-1.5 py-1 outline-none cursor-pointer"
                       >
                         {listCountryOptions().map((cfg) => (
@@ -2063,31 +2063,31 @@ ${
                       </select>
                     </div>
 
-                    {/* CSV Sample Download Template â€” Phase 1: gated by the
+                    {/* CSV Sample Download Template — Phase 1: gated by the
                         catalogue:export entitlement (free today because
                         PHASE1_ALL_FEATURES_FREE=true server-side). */}
                     <FeatureGate feature="catalogue:export">
                       <button
                         type="button"
                         onClick={handleDownloadCsvSample}
-                        title="TÃ©lÃ©charger un modÃ¨le CSV d'exemple pour le catalogue"
+                        title="Télécharger un modèle CSV d'exemple pour le catalogue"
                         className="px-3 py-2 bg-slate-900 hover:bg-slate-850 text-slate-300 hover:text-white border border-slate-800 rounded-xl text-xs font-semibold transition-all cursor-pointer flex items-center gap-1.5"
                       >
                         <Download className="w-3.5 h-3.5 text-sky-400" />
-                        <span>ModÃ¨le CSV</span>
+                        <span>Modèle CSV</span>
                       </button>
                     </FeatureGate>
 
-                    {/* Bulk Import Button â€” Phase C: upload â†’ smart mapping â†’ preview â†’ transactional import (CSV + XLSX) */}
+                    {/* Bulk Import Button — Phase C: upload → smart mapping → preview → transactional import (CSV + XLSX) */}
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={importStep !== 'idle'}
-                      title="Import transactionnel cÃ´tÃ© serveur : tout-ou-rien, aucune Ã©criture partielle. CSV et Excel (.xlsx) acceptÃ©s."
+                      title="Import transactionnel côté serveur : tout-ou-rien, aucune écriture partielle. CSV et Excel (.xlsx) acceptés."
                       className="px-3.5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black rounded-xl shadow-lg shadow-emerald-500/20 transition-all cursor-pointer flex items-center gap-1.5 border border-emerald-400 disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       <Upload className="w-4 h-4" />
-                      <span>{importStep !== 'idle' ? 'Import en coursâ€¦' : 'Importer Catalogue (CSV / Excel)'}</span>
+                      <span>{importStep !== 'idle' ? 'Import en cours…' : 'Importer Catalogue (CSV / Excel)'}</span>
                     </button>
 
                     {/* Manual Add Material Form Toggle */}
@@ -2101,7 +2101,7 @@ ${
                       }`}
                     >
                       <Plus className="w-4 h-4" />
-                      <span>{showAddMaterialForm ? 'Fermer Formulaire' : 'Ajouter un MatÃ©riau'}</span>
+                      <span>{showAddMaterialForm ? 'Fermer Formulaire' : 'Ajouter un Matériau'}</span>
                     </button>
 
                     {/* Save All Rates */}
@@ -2111,21 +2111,21 @@ ${
                       className="px-4 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black rounded-xl shadow-lg shadow-amber-500/20 transition-all cursor-pointer flex items-center gap-1.5"
                     >
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>âœ“ Enregistrer les BarÃ¨mes</span>
+                      <span>✓ Enregistrer les Barèmes</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Step 8 â€” Pending Price Updates (Admin Review)
-                    P2 â€” rendered from the explicit review view state so a failed
+                {/* Step 8 — Pending Price Updates (Admin Review)
+                    P2 — rendered from the explicit review view state so a failed
                     load shows the real reason + Â« Actualiser Â» instead of an
-                    empty (Â« Aucune mise Ã  jour Â») queue. */}
+                    empty (« Aucune mise à jour ») queue. */}
                 {pendingReviewView !== 'hidden' && (
                   <div className="bg-slate-950 p-4 rounded-2xl border border-sky-500/30">
                     <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                       <h4 className="text-xs font-bold text-sky-400 flex items-center gap-2">
                         <Clock className="w-4 h-4" />
-                        <span>Mises Ã  jour de prix en attente d'approbation</span>
+                        <span>Mises à jour de prix en attente d'approbation</span>
                       </h4>
                       <div className="flex items-center gap-2">
                         <span className="text-[10px] text-slate-400 font-mono">{pendingUpdates.length} en attente</span>
@@ -2133,7 +2133,7 @@ ${
                           type="button"
                           onClick={() => void loadPendingUpdates()}
                           disabled={pendingLoadState === 'loading'}
-                          title="Recharger la file de rÃ©vision"
+                          title="Recharger la file de révision"
                           className="px-2.5 py-1 bg-slate-900 hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed text-slate-300 text-[10px] font-bold border border-slate-800 rounded-lg transition-all cursor-pointer flex items-center gap-1"
                         >
                           <RefreshCw className={`w-3 h-3 ${pendingLoadState === 'loading' ? 'animate-spin' : ''}`} />
@@ -2144,23 +2144,23 @@ ${
 
                     {pendingReviewView === 'error' && (
                       <div className="text-[11px] text-rose-300 bg-rose-950/40 border border-rose-500/30 rounded-xl px-3 py-2 mt-3">
-                        âœ— {pendingError || 'Impossible de charger les mises Ã  jour de prix en attente.'} â€” cliquez sur Â« Actualiser Â» pour rÃ©essayer.
+                        ✗ {pendingError || 'Impossible de charger les mises à jour de prix en attente.'} — cliquez sur « Actualiser » pour réessayer.
                       </div>
                     )}
                     {pendingReviewView === 'loading' && (
-                      <p className="text-[11px] text-slate-400 mt-3">Chargement de la file de rÃ©visionâ€¦</p>
+                      <p className="text-[11px] text-slate-400 mt-3">Chargement de la file de révision…</p>
                     )}
                     {pendingReviewView === 'empty' && (
-                      <p className="text-[11px] text-slate-500 mt-3">Aucune mise Ã  jour de prix en attente.</p>
+                      <p className="text-[11px] text-slate-500 mt-3">Aucune mise à jour de prix en attente.</p>
                     )}
 
                     <table className="w-full text-left text-[11px] mt-3">
                       <thead className="bg-slate-900 text-slate-400">
                         <tr>
-                          <th className="px-2 py-1.5">MatÃ©riau</th>
-                          <th className="px-2 py-1.5">MarchÃ©</th>
+                          <th className="px-2 py-1.5">Matériau</th>
+                          <th className="px-2 py-1.5">Marché</th>
                           <th className="px-2 py-1.5">Prix</th>
-                          <th className="px-2 py-1.5">ReÃ§u le</th>
+                          <th className="px-2 py-1.5">Reçu le</th>
                           <th className="px-2 py-1.5 text-right">Action</th>
                         </tr>
                       </thead>
@@ -2180,7 +2180,7 @@ ${
                                 disabled={isApprovePendingBlocked(approvingIds, pu.id)}
                                 className="px-2.5 py-1 bg-sky-500 hover:bg-sky-400 disabled:opacity-50 disabled:cursor-not-allowed text-slate-950 text-[10px] font-black rounded-lg cursor-pointer"
                               >
-                                {isApprovePendingBlocked(approvingIds, pu.id) ? 'Approbationâ€¦' : 'Approuver'}
+                                {isApprovePendingBlocked(approvingIds, pu.id) ? 'Approbation…' : 'Approuver'}
                               </button>
                             </td>
                           </tr>
@@ -2196,19 +2196,19 @@ ${
                     <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                       <h4 className="text-xs font-bold text-emerald-400 flex items-center gap-2">
                         <PlusCircle className="w-4 h-4" />
-                        <span>Nouveau MatÃ©riau BTP â€” Inscription Dynamique dans les Calculateurs</span>
+                        <span>Nouveau Matériau BTP — Inscription Dynamique dans les Calculateurs</span>
                       </h4>
-                      <span className="text-[10px] text-slate-400 font-mono">Prise en compte immÃ©diate</span>
+                      <span className="text-[10px] text-slate-400 font-mono">Prise en compte immédiate</span>
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-300 mb-1">Nom du MatÃ©riau (FranÃ§ais) *</label>
+                        <label className="block text-xs font-semibold text-slate-300 mb-1">Nom du Matériau (Français) *</label>
                         <input
                           type="text"
                           value={newMaterial.nameFr}
                           onChange={(e) => setNewMaterial(prev => ({ ...prev, nameFr: e.target.value }))}
-                          placeholder="Ex: Plaque BA15 Acoustic Ultra, ProfilÃ© Omega 3m..."
+                          placeholder="Ex: Plaque BA15 Acoustic Ultra, Profilé Omega 3m..."
                           required
                           className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
                         />
@@ -2238,7 +2238,7 @@ ${
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div>
-                        <label className="block text-xs font-semibold text-slate-300 mb-1">CatÃ©gorie BTP *</label>
+                        <label className="block text-xs font-semibold text-slate-300 mb-1">Catégorie BTP *</label>
                         <select
                           value={newMaterial.category}
                           onChange={(e) => setNewMaterial(prev => ({ ...prev, category: e.target.value as TradeCategory }))}
@@ -2246,35 +2246,35 @@ ${
                         >
                           <option value="placo">Plaquiste & Placo BA13</option>
                           <option value="peinture">Peinture & Enduits</option>
-                          <option value="carrelage">Carrelage & RevÃªtement</option>
-                          <option value="maconnerie">MaÃ§onnerie & Ciment</option>
+                          <option value="carrelage">Carrelage & Revêtement</option>
+                          <option value="maconnerie">Maçonnerie & Ciment</option>
                           <option value="plomberie">Plomberie & Sanitaires</option>
-                          <option value="electricite">Ã‰lectricitÃ© BTP</option>
+                          <option value="electricite">Électricité BTP</option>
                           <option value="isolation">Isolation Acoustique / Thermique</option>
-                          <option value="facade">FaÃ§ade & Aquapanel</option>
-                          <option value="etancheite">Ã‰tanchÃ©itÃ© & Silicone</option>
+                          <option value="facade">Façade & Aquapanel</option>
+                          <option value="etancheite">Étanchéité & Silicone</option>
                           <option value="menuiserie">Menuiserie & Fixations</option>
-                          <option value="sols">RevÃªtements de Sols</option>
-                          <option value="demolition">DÃ©molition & Ã‰vacuation</option>
+                          <option value="sols">Revêtements de Sols</option>
+                          <option value="demolition">Démolition & Évacuation</option>
                         </select>
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-slate-300 mb-1">UnitÃ© de Mesure *</label>
+                        <label className="block text-xs font-semibold text-slate-300 mb-1">Unité de Mesure *</label>
                         <select
                           value={newMaterial.unit}
                           onChange={(e) => setNewMaterial(prev => ({ ...prev, unit: e.target.value as MaterialRate['unit'] }))}
                           className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white font-bold focus:border-emerald-400 focus:outline-none"
                         >
-                          <option value="unit">UnitÃ© (unit)</option>
-                          <option value="mÂ²">MÃ¨tre CarrÃ© (mÂ²)</option>
-                          <option value="ml">MÃ¨tre LinÃ©aire (ml)</option>
-                          <option value="m">MÃ¨tre (m)</option>
+                          <option value="unit">Unité (unit)</option>
+                          <option value="m²">Mètre Carré (m²)</option>
+                          <option value="ml">Mètre Linéaire (ml)</option>
+                          <option value="m">Mètre (m)</option>
                           <option value="litre">Litre (L)</option>
                           <option value="set">Set / Kit (set)</option>
                           <option value="sac">Sac (25kg/50kg)</option>
-                          <option value="boite">BoÃ®te (boite)</option>
-                          <option value="boite_1000">BoÃ®te de 1000 (vis)</option>
+                          <option value="boite">Boîte (boite)</option>
+                          <option value="boite_1000">Boîte de 1000 (vis)</option>
                           <option value="rouleau">Rouleau</option>
                           <option value="kg">Kilogramme (kg)</option>
                           <option value="panneau">Panneau</option>
@@ -2298,12 +2298,12 @@ ${
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-300 mb-1">Note Technique / SpÃ©cification</label>
+                      <label className="block text-xs font-semibold text-slate-300 mb-1">Note Technique / Spécification</label>
                       <input
                         type="text"
                         value={newMaterial.note}
                         onChange={(e) => setNewMaterial(prev => ({ ...prev, note: e.target.value }))}
-                        placeholder="Ex: Conditionnement par carton, conforme aux spÃ©cifications CS8..."
+                        placeholder="Ex: Conditionnement par carton, conforme aux spécifications CS8..."
                         className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
                       />
                     </div>
@@ -2321,7 +2321,7 @@ ${
                         className="px-5 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black rounded-xl shadow-lg shadow-emerald-500/20 transition-all cursor-pointer flex items-center gap-1.5"
                       >
                         <PlusCircle className="w-4 h-4" />
-                        <span>Ajouter aux BarÃ¨mes & Calculateurs</span>
+                        <span>Ajouter aux Barèmes & Calculateurs</span>
                       </button>
                     </div>
                   </form>
@@ -2383,9 +2383,9 @@ ${
                   <table className="w-full text-left text-xs">
                     <thead className="bg-slate-900 text-slate-400 sticky top-0 border-b border-slate-800 z-10">
                       <tr>
-                        <th className="p-3">RÃ©f / MatÃ©riau</th>
-                        <th className="p-3">CatÃ©gorie</th>
-                        <th className="p-3">UnitÃ©</th>
+                        <th className="p-3">Réf / Matériau</th>
+                        <th className="p-3">Catégorie</th>
+                        <th className="p-3">Unité</th>
                         <th className="p-3 text-right">Prix Unitaire HT (TND)</th>
                       </tr>
                     </thead>
@@ -2411,7 +2411,7 @@ ${
                                 type="button"
                                 onClick={() => void handleDeleteMaterial(rate)}
                                 className="p-1.5 text-slate-500 hover:text-rose-400 bg-slate-900 hover:bg-rose-950/50 border border-slate-800 rounded-lg transition-all cursor-pointer"
-                                title="Archiver ce matÃ©riau (base de donnÃ©es) et le retirer des barÃ¨mes â€” historique conservÃ©"
+                                title="Archiver ce matériau (base de données) et le retirer des barèmes — historique conservé"
                               >
                                 <Trash2 className="w-3.5 h-3.5" />
                               </button>
@@ -2425,7 +2425,7 @@ ${
               </div>
             )}
 
-            {/* TAB 2b: ADMIN â†’ MÃ‰TIERS (single source of truth for Outils + Services) */}
+            {/* TAB 2b: ADMIN → MÉTIERS (single source of truth for Outils + Services) */}
             {activeAdminTab === 'trades' && (
               <AdminTradesPanel
                 isAdmin={isCurrentlyAdmin}
@@ -2446,7 +2446,7 @@ ${
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">Nom & PrÃ©nom *</label>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">Nom & Prénom *</label>
                     <input
                       type="text"
                       value={newArtisan.name}
@@ -2458,7 +2458,7 @@ ${
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">Nom de la SociÃ©tÃ© / Entreprise</label>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">Nom de la Société / Entreprise</label>
                     <input
                       type="text"
                       value={newArtisan.company}
@@ -2471,7 +2471,7 @@ ${
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">SpÃ©cialitÃ© Principale</label>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">Spécialité Principale</label>
                     <select
                       value={newArtisan.trade}
                       onChange={(e) => setNewArtisan(prev => ({ ...prev, trade: e.target.value as TradeCategory }))}
@@ -2479,12 +2479,12 @@ ${
                     >
                       <option value="placo">Plaquiste & Faux Plafonds</option>
                       <option value="peinture">Peinture & Enduits</option>
-                      <option value="carrelage">Carrelage & RevÃªtement</option>
-                      <option value="electricite">Ã‰lectricitÃ© BTP</option>
+                      <option value="carrelage">Carrelage & Revêtement</option>
+                      <option value="electricite">Électricité BTP</option>
                       <option value="plomberie">Plomberie & Sanitaires</option>
-                      <option value="facade">FaÃ§adier & Aquapanel</option>
+                      <option value="facade">Façadier & Aquapanel</option>
                       <option value="isolation">Isolation Acoustique</option>
-                      <option value="maconnerie">MaÃ§onnerie GÃ©nÃ©rale</option>
+                      <option value="maconnerie">Maçonnerie Générale</option>
                     </select>
                   </div>
 
@@ -2502,7 +2502,7 @@ ${
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-slate-300 mb-1">NumÃ©ro TÃ©lÃ©phone *</label>
+                    <label className="block text-xs font-semibold text-slate-300 mb-1">Numéro Téléphone *</label>
                     <input
                       type="text"
                       value={newArtisan.phone}
@@ -2553,12 +2553,12 @@ ${
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1">PrÃ©sentation / Bio</label>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1">Présentation / Bio</label>
                   <textarea
                     rows={2}
                     value={newArtisan.bio}
                     onChange={(e) => setNewArtisan(prev => ({ ...prev, bio: e.target.value }))}
-                    placeholder="Description des compÃ©tences, outillage et rÃ©fÃ©rences de chantiers..."
+                    placeholder="Description des compétences, outillage et références de chantiers..."
                     className="w-full bg-slate-900 border border-slate-700 rounded-xl p-2.5 text-xs text-white focus:border-amber-400 focus:outline-none"
                   />
                 </div>
@@ -2569,7 +2569,7 @@ ${
                     className="px-6 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs font-black rounded-xl shadow-lg shadow-amber-500/20 transition-all cursor-pointer inline-flex items-center gap-2"
                   >
                     <PlusCircle className="w-4 h-4" />
-                    <span>Ajouter l'Artisan Ã  l'Annuaire</span>
+                    <span>Ajouter l'Artisan à l'Annuaire</span>
                   </button>
                 </div>
               </form>
@@ -2585,10 +2585,10 @@ ${
                     <div>
                       <h4 className="text-sm font-bold text-white flex items-center gap-2">
                         <Coins className="w-5 h-5 text-amber-400" />
-                        <span>Gestion des Commissions, Frais & ModÃ¨le Economique BTP 2026</span>
+                        <span>Gestion des Commissions, Frais & Modèle Economique BTP 2026</span>
                       </h4>
                       <p className="text-xs text-slate-400">
-                        Configurez les rÃ¨gles de prÃ©lÃ¨vement sur les devis validÃ©s, abonnements artisans et frais de mise en relation.
+                        Configurez les règles de prélèvement sur les devis validés, abonnements artisans et frais de mise en relation.
                       </p>
                     </div>
 
@@ -2617,7 +2617,7 @@ ${
                         <Percent className="w-4 h-4 text-amber-400" />
                       </div>
                       <p className="text-xs text-slate-300 font-semibold mb-1">Pourcentage sur Devis</p>
-                      <p className="text-[11px] text-slate-400">PrÃ©lÃ¨vement proportionnel au montant total HT du chantier.</p>
+                      <p className="text-[11px] text-slate-400">Prélèvement proportionnel au montant total HT du chantier.</p>
                     </button>
 
                     <button
@@ -2634,7 +2634,7 @@ ${
                         <Receipt className="w-4 h-4 text-emerald-400" />
                       </div>
                       <p className="text-xs text-slate-300 font-semibold mb-1">Forfait par Estimation</p>
-                      <p className="text-[11px] text-slate-400">Montant fixe prÃ©levÃ© par devis acceptÃ© ou transaction client.</p>
+                      <p className="text-[11px] text-slate-400">Montant fixe prélevé par devis accepté ou transaction client.</p>
                     </button>
 
                     <button
@@ -2647,7 +2647,7 @@ ${
                       }`}
                     >
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-bold uppercase font-mono">ModÃ¨le Hybride BTP</span>
+                        <span className="text-xs font-bold uppercase font-mono">Modèle Hybride BTP</span>
                         <Coins className="w-4 h-4 text-sky-400" />
                       </div>
                       <p className="text-xs text-slate-300 font-semibold mb-1">Pourcentage + Forfait Fixe</p>
@@ -2703,11 +2703,11 @@ ${
                         />
                         <span className="text-xs font-bold text-slate-400 font-mono">DT/mois</span>
                       </div>
-                      <span className="text-[10px] text-slate-500 block">Recette rÃ©currente SaaS</span>
+                      <span className="text-[10px] text-slate-500 block">Recette récurrente SaaS</span>
                     </div>
 
                     <div className="bg-slate-900 p-3.5 rounded-2xl border border-slate-800 space-y-1.5">
-                      <label className="block text-xs font-bold text-purple-400">PrÃ©lÃ¨vement Retenue Source (%)</label>
+                      <label className="block text-xs font-bold text-purple-400">Prélèvement Retenue Source (%)</label>
                       <div className="flex items-center gap-2">
                         <input
                           type="number"
@@ -2720,7 +2720,7 @@ ${
                         />
                         <span className="text-xs font-bold text-slate-400 font-mono">%</span>
                       </div>
-                      <span className="text-[10px] text-slate-500 block">ConformitÃ© fiscale 2026</span>
+                      <span className="text-[10px] text-slate-500 block">Conformité fiscale 2026</span>
                     </div>
                   </div>
                 </form>
@@ -2731,10 +2731,10 @@ ${
                     <div>
                       <h4 className="text-xs font-bold text-amber-400 flex items-center gap-2">
                         <Calculator className="w-4 h-4" />
-                        <span>Simulateur & Traqueur de Revenus EstimÃ©s (Platform Earnings)</span>
+                        <span>Simulateur & Traqueur de Revenus Estimés (Platform Earnings)</span>
                       </h4>
                       <p className="text-[11px] text-slate-400">
-                        Estimation des revenus gÃ©nÃ©rÃ©s en fonction des {totalDevisCount} devis calculÃ©s et {proArtisansCount} artisans PRO.
+                        Estimation des revenus générés en fonction des {totalDevisCount} devis calculés et {proArtisansCount} artisans PRO.
                       </p>
                     </div>
                     <span className="px-2.5 py-1 bg-amber-500/10 text-amber-400 border border-amber-500/30 text-[10px] font-mono font-bold rounded-lg uppercase">
@@ -2769,11 +2769,11 @@ ${
                       <div className="text-xl font-black text-sky-400 font-mono">
                         {(proArtisansCount * proMonthlySubPrice).toLocaleString('fr-TN')} DT
                       </div>
-                      <span className="text-[10px] text-slate-400 block">{proArtisansCount} Artisans PRO Ã— {proMonthlySubPrice} DT/mois</span>
+                      <span className="text-[10px] text-slate-400 block">{proArtisansCount} Artisans PRO × {proMonthlySubPrice} DT/mois</span>
                     </div>
 
                     <div className="bg-gradient-to-br from-emerald-950/80 to-slate-950 p-4 rounded-2xl border border-emerald-500/50 space-y-1 shadow-lg shadow-emerald-500/10">
-                      <span className="text-[10px] font-bold text-emerald-400 uppercase">Revenu Global EstimÃ©</span>
+                      <span className="text-[10px] font-bold text-emerald-400 uppercase">Revenu Global Estimé</span>
                       <div className="text-2xl font-black text-emerald-400 font-mono">
                         {Math.round(
                           (commissionType === 'percent' ? (totalDevisVolumeTnd * commissionPercent) / 100 :
@@ -2788,12 +2788,12 @@ ${
 
                   {/* Simulated Per-Devis Revenue Breakdown Table */}
                   <div className="pt-2">
-                    <h5 className="text-xs font-bold text-slate-300 mb-2">Simulations DÃ©taillÃ©es par Devis du Journal</h5>
+                    <h5 className="text-xs font-bold text-slate-300 mb-2">Simulations Détaillées par Devis du Journal</h5>
                     <div className="max-h-64 overflow-y-auto border border-slate-800 rounded-xl bg-slate-900/60">
                       <table className="w-full text-left text-xs">
                         <thead className="bg-slate-950 text-slate-400 sticky top-0 border-b border-slate-800">
                           <tr>
-                            <th className="p-3">RÃ©f / Client</th>
+                            <th className="p-3">Réf / Client</th>
                             <th className="p-3">Projet</th>
                             <th className="p-3">Montant Devis HT</th>
                             <th className="p-3">Calcul Commission (%)</th>
@@ -2842,16 +2842,16 @@ ${
             {activeAdminTab === 'pro_offers' && (
               <div className="space-y-6">
                 
-                {/* Phase 2 â€” Admin Usage Analytics (real DB data only) */}
+                {/* Phase 2 — Admin Usage Analytics (real DB data only) */}
                 <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-4">
                   <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-800 pb-4">
                     <div>
                       <h4 className="text-sm font-bold text-white flex items-center gap-2">
                         <BarChart3 className="w-5 h-5 text-amber-400" />
-                        <span>Analytique d'Usage â€” donnÃ©es rÃ©elles</span>
+                        <span>Analytique d'Usage — données réelles</span>
                       </h4>
                       <p className="text-xs text-slate-400">
-                        AgrÃ©gation en lecture seule de <span className="font-mono">user_feature_usage</span> : usage total, utilisateurs uniques, usage du mois. Classement par usage dÃ©croissant. P3 : ces compteurs sont ceux rÃ©ellement appliquÃ©s par les limites d'usage.
+                        Agrégation en lecture seule de <span className="font-mono">user_feature_usage</span> : usage total, utilisateurs uniques, usage du mois. Classement par usage décroissant. P3 : ces compteurs sont ceux réellement appliqués par les limites d'usage.
                       </p>
                     </div>
                     <div className="flex flex-wrap items-center gap-2">
@@ -2908,8 +2908,8 @@ ${
                           <div className="text-lg font-black text-slate-100">{usageStats.totalUsage}</div>
                           <div className="text-[10px] uppercase tracking-wider text-slate-500">
                             {usageStats.from || usageStats.to
-                              ? `Usage sur la pÃ©riode sÃ©lectionnÃ©e${usageStats.from ? ` (${usageStats.from}` : ''}${usageStats.from && usageStats.to ? ` â†’ ${usageStats.to})` : usageStats.from ? ')' : ''}`
-                              : 'Usage total (toutes pÃ©riodes)'}
+                              ? `Usage sur la période sélectionnée${usageStats.from ? ` (${usageStats.from}` : ''}${usageStats.from && usageStats.to ? ` → ${usageStats.to})` : usageStats.from ? ')' : ''}`
+                              : 'Usage total (toutes périodes)'}
                           </div>
                         </div>
                         <div className="bg-slate-900 border border-slate-800 rounded-xl p-3">
@@ -2920,24 +2920,24 @@ ${
                         </div>
                         <div className="bg-slate-900 border border-slate-800 rounded-xl p-3">
                           <div className="text-lg font-black text-emerald-400">{usageStats.features.length}</div>
-                          <div className="text-[10px] uppercase tracking-wider text-slate-500">FonctionnalitÃ©s trackÃ©es</div>
+                          <div className="text-[10px] uppercase tracking-wider text-slate-500">Fonctionnalités trackées</div>
                         </div>
                       </div>
 
                       {usageStats.features.length === 0 ? (
                         <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 text-[11px] text-slate-400">
-                          Aucune donnÃ©e d'usage enregistrÃ©e pour le moment â€” les statistiques apparaissent dÃ¨s les premiÃ¨res actions rÃ©elles (aucune donnÃ©e d'exemple n'est affichÃ©e).
+                          Aucune donnée d'usage enregistrée pour le moment — les statistiques apparaissent dès les premières actions réelles (aucune donnée d'exemple n'est affichée).
                         </div>
                       ) : (
                         <div className="overflow-x-auto">
                           <table className="w-full min-w-[560px] text-[11px]">
                             <thead>
                               <tr className="text-left text-slate-500 uppercase tracking-wider">
-                                <th className="py-2 pr-3 font-bold">FonctionnalitÃ©</th>
+                                <th className="py-2 pr-3 font-bold">Fonctionnalité</th>
                                 <th className="py-2 pr-3 font-bold">Usage total</th>
                                 <th className="py-2 pr-3 font-bold">Utilisateurs uniques</th>
                                 <th className="py-2 pr-3 font-bold">Ce mois</th>
-                                <th className="py-2 font-bold">DerniÃ¨re activitÃ©</th>
+                                <th className="py-2 font-bold">Dernière activité</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -2948,7 +2948,7 @@ ${
                                   <td className="py-2 pr-3">{f.uniqueUsers}</td>
                                   <td className="py-2 pr-3">{f.currentMonthUsage}</td>
                                   <td className="py-2 text-slate-400">
-                                    {f.lastActivityAt ? new Date(f.lastActivityAt).toLocaleString('fr-FR') : 'â€”'}
+                                    {f.lastActivityAt ? new Date(f.lastActivityAt).toLocaleString('fr-FR') : '—'}
                                   </td>
                                 </tr>
                               ))}
@@ -2958,11 +2958,11 @@ ${
                       )}
                       {usageStats.series.length > 0 && (
                         <div className="overflow-x-auto">
-                          <h5 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">SÃ©rie par pÃ©riode</h5>
+                          <h5 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">Série par période</h5>
                           <table className="w-full min-w-[420px] text-[11px]">
                             <thead>
                               <tr className="text-left text-slate-500 uppercase tracking-wider">
-                                <th className="py-1.5 pr-3 font-bold">PÃ©riode</th>
+                                <th className="py-1.5 pr-3 font-bold">Période</th>
                                 <th className="py-1.5 pr-3 font-bold">Usage</th>
                                 <th className="py-1.5 font-bold">Utilisateurs actifs</th>
                               </tr>
@@ -2983,12 +2983,12 @@ ${
                       {usageStats.roleBreakdown.length > 0 && (
                         <div className="overflow-x-auto">
                           <h5 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                            Par rÃ´le (jointure en lecture seule avec users.global_role)
+                            Par rôle (jointure en lecture seule avec users.global_role)
                           </h5>
                           <table className="w-full min-w-[420px] text-[11px]">
                             <thead>
                               <tr className="text-left text-slate-500 uppercase tracking-wider">
-                                <th className="py-1.5 pr-3 font-bold">RÃ´le</th>
+                                <th className="py-1.5 pr-3 font-bold">Rôle</th>
                                 <th className="py-1.5 pr-3 font-bold">Usage</th>
                                 <th className="py-1.5 font-bold">Utilisateurs uniques</th>
                               </tr>
@@ -3009,12 +3009,12 @@ ${
                       {usageShowTopUsers && usageStats.features.some((f) => f.topUsers && f.topUsers.length > 0) && (
                         <div className="overflow-x-auto">
                           <h5 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                            Top utilisateurs (5 premiers par fonctionnalitÃ© â€” visible uniquement dans le panneau Admin)
+                            Top utilisateurs (5 premiers par fonctionnalité — visible uniquement dans le panneau Admin)
                           </h5>
                           <table className="w-full min-w-[420px] text-[11px]">
                             <thead>
                               <tr className="text-left text-slate-500 uppercase tracking-wider">
-                                <th className="py-1.5 pr-3 font-bold">FonctionnalitÃ©</th>
+                                <th className="py-1.5 pr-3 font-bold">Fonctionnalité</th>
                                 <th className="py-1.5 pr-3 font-bold">Utilisateur</th>
                                 <th className="py-1.5 font-bold">Usage</th>
                               </tr>
@@ -3024,7 +3024,7 @@ ${
                                 (f.topUsers || []).map((t) => (
                                   <tr key={`${f.featureKey}:${t.userId}`} className="border-t border-slate-800/70 text-slate-200">
                                     <td className="py-1.5 pr-3 font-mono">{f.featureKey}</td>
-                                    <td className="py-1.5 pr-3 font-mono text-slate-400">{t.userId.slice(0, 8)}â€¦</td>
+                                    <td className="py-1.5 pr-3 font-mono text-slate-400">{t.userId.slice(0, 8)}…</td>
                                     <td className="py-1.5 font-bold text-amber-400">{t.totalUsage}</td>
                                   </tr>
                                 ))
@@ -3046,7 +3046,7 @@ ${
                         <span>Gestion Dynamique des Offres Plan Pro (SaaS Artisans)</span>
                       </h4>
                       <p className="text-xs text-slate-400">
-                        Ajustez les fonctionnalitÃ©s, avantages et points clÃ©s prÃ©sentÃ©s aux artisans sur la carte tarifaire Plan PRO ({proMonthlySubPrice} DT/mois).
+                        Ajustez les fonctionnalités, avantages et points clés présentés aux artisans sur la carte tarifaire Plan PRO ({proMonthlySubPrice} DT/mois).
                       </p>
                     </div>
 
@@ -3064,35 +3064,35 @@ ${
                     </div>
                   </div>
 
-                  {/* P3 â€” live FREE/PRO enforcement status (server-driven) */}
+                  {/* P3 — live FREE/PRO enforcement status (server-driven) */}
                   <div className={`p-3 rounded-xl border text-[11px] leading-relaxed ${featureEnforced ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-amber-500/10 border-amber-500/30 text-amber-300'}`}>
-                    <span className="font-bold">{featureEnforced ? 'P3 â€” contrÃ´le FREE/PRO actif :' : 'Mode Â« tout gratuit Â» actif :'}</span>{' '}
+                    <span className="font-bold">{featureEnforced ? 'P3 — contrôle FREE/PRO actif :' : 'Mode « tout gratuit » actif :'}</span>{' '}
                     {featureEnforced ? (
                       <>
-                        les rÃ©glages ci-dessous sont <span className="font-bold">rÃ©ellement appliquÃ©s</span> par le serveur
+                        les réglages ci-dessous sont <span className="font-bold">réellement appliqués</span> par le serveur
                         (<span className="font-mono">feature_entitlements</span> via <span className="font-mono">/api/v1/admin/features</span>) :
-                        accÃ¨s FREE/PRO, rÃ´le (<span className="font-mono">scope</span>) et limites d'usage mensuelles. Statut du compte connectÃ© :{' '}
+                        accès FREE/PRO, rôle (<span className="font-mono">scope</span>) et limites d'usage mensuelles. Statut du compte connecté :{' '}
                         <span className="font-bold">{adminPlanLabel(featurePlan)}</span>.
                       </>
                     ) : (
                       <>
                         le serveur tourne avec le commutateur d'urgence <span className="font-mono">ALL_FEATURES_FREE=1</span> :
-                        toutes les fonctionnalitÃ©s restent gratuites et illimitÃ©es, les rÃ©glages ci-dessous sont seulement enregistrÃ©s.
+                        toutes les fonctionnalités restent gratuites et illimitées, les réglages ci-dessous sont seulement enregistrés.
                       </>
                     )}
                   </div>
 
-                  {/* P3 â€” Admin plan management (FREE/PRO) on the existing subscription row */}
+                  {/* P3 — Admin plan management (FREE/PRO) on the existing subscription row */}
                   <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-800 pb-3">
                       <div>
                         <h5 className="text-xs font-bold text-white flex items-center gap-2 uppercase tracking-wider">
                           <KeyRound className="w-4 h-4 text-amber-400" />
-                          <span>Plans (FREE / PRO) â€” gÃ©rÃ©s cÃ´tÃ© serveur</span>
+                          <span>Plans (FREE / PRO) — gérés côté serveur</span>
                         </h5>
                         <p className="text-[11px] text-slate-400 mt-1">
-                          Le plan d'un compte est l'abonnement de son entreprise (mÃªme table que le paiement Flouci).
-                          Le statut affichÃ© Ã  l'utilisateur et le contrÃ´le d'accÃ¨s utilisent la mÃªme source.
+                          Le plan d'un compte est l'abonnement de son entreprise (même table que le paiement Flouci).
+                          Le statut affiché à l'utilisateur et le contrôle d'accès utilisent la même source.
                         </p>
                       </div>
                       <span className={`shrink-0 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${featureEnforced ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40' : 'bg-amber-500/15 text-amber-300 border-amber-500/40'}`}>
@@ -3114,17 +3114,17 @@ ${
                           type="button"
                           onClick={handlePlanCheck}
                           disabled={planBusy}
-                          title="RÃ©soudre le plan rÃ©el via l'abonnement de l'entreprise"
+                          title="Résoudre le plan réel via l'abonnement de l'entreprise"
                           className="px-3 py-2 bg-slate-900 hover:bg-slate-850 text-slate-300 hover:text-white border border-slate-800 rounded-xl text-[11px] font-semibold transition-all cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
                         >
                           <Search className="w-3.5 h-3.5" />
-                          <span>VÃ©rifier</span>
+                          <span>Vérifier</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => handlePlanGrant('pro')}
                           disabled={planBusy}
-                          title="Activer PRO (abonnement entreprise mis Ã  jour, tier=PRO)"
+                          title="Activer PRO (abonnement entreprise mis à jour, tier=PRO)"
                           className="px-3 py-2 bg-amber-400/10 border border-amber-400/40 text-amber-400 rounded-xl text-[11px] font-bold hover:bg-amber-400/20 transition-colors cursor-pointer disabled:opacity-50"
                         >
                           Passer en PRO
@@ -3133,7 +3133,7 @@ ${
                           type="button"
                           onClick={() => handlePlanGrant('free')}
                           disabled={planBusy}
-                          title="Repasser en FREE (abonnement entreprise conservÃ©, tier=FREE)"
+                          title="Repasser en FREE (abonnement entreprise conservé, tier=FREE)"
                           className="px-3 py-2 bg-slate-900 border border-slate-800 text-slate-300 rounded-xl text-[11px] font-bold hover:text-white transition-colors cursor-pointer disabled:opacity-50"
                         >
                           Repasser en FREE
@@ -3156,11 +3156,11 @@ ${
                             {adminPlanLabel(planView.planCode)}
                           </span>
                           {' '}Â· entreprise <span className="font-mono text-slate-400">{planView.companyId}</span>
-                          {' '}Â· abonnement <span className="font-mono text-slate-400">{planView.subscription?.tier ?? 'â€”'}</span>
-                          {' / '}<span className="font-mono text-slate-400">{planView.subscription?.status ?? 'â€”'}</span>
+                          {' '}· abonnement <span className="font-mono text-slate-400">{planView.subscription?.tier ?? '—'}</span>
+                          {' / '}<span className="font-mono text-slate-400">{planView.subscription?.status ?? '—'}</span>
                         </div>
                         <div className="text-[10px] text-slate-500">
-                          Source : {planView.resolvedFrom === 'user_plan' ? 'getUserPlan (utilisateur â†’ abonnement entreprise)' : 'abonnement entreprise'} â€” contrÃ´le {planView.enforced ? 'ACTIF' : 'dÃ©sactivÃ©'}.
+                          Source : {planView.resolvedFrom === 'user_plan' ? 'getUserPlan (utilisateur → abonnement entreprise)' : 'abonnement entreprise'} — contrôle {planView.enforced ? 'ACTIF' : 'désactivé'}.
                         </div>
                       </div>
                     )}
@@ -3170,7 +3170,7 @@ ${
                   {featuresLoadState === 'loading' && (
                     <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 text-[11px] text-slate-400 flex items-center gap-2">
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Chargement depuis GET /api/v1/admin/featuresâ€¦</span>
+                      <span>Chargement depuis GET /api/v1/admin/features…</span>
                     </div>
                   )}
 
@@ -3179,7 +3179,7 @@ ${
                     <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-[11px] text-red-300 leading-relaxed">
                       <div className="font-bold flex items-center gap-1.5">
                         <AlertCircle className="w-3.5 h-3.5" />
-                        <span>Ã‰chec du chargement des entitlements</span>
+                        <span>Échec du chargement des entitlements</span>
                       </div>
                       <div className="mt-1">{featuresLoadError}</div>
                       <button
@@ -3187,7 +3187,7 @@ ${
                         onClick={loadAdminFeatures}
                         className="mt-2 px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 rounded-lg font-bold cursor-pointer"
                       >
-                        RÃ©essayer
+                        Réessayer
                       </button>
                     </div>
                   )}
@@ -3231,21 +3231,21 @@ ${
                             setFeatureCreateError(null);
                           }}
                           className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-400/10 border border-amber-400/40 text-amber-400 text-[11px] font-bold hover:bg-amber-400/20 transition-colors cursor-pointer"
-                          title="CrÃ©er un nouvel entitlement (persistÃ© cÃ´tÃ© serveur)"
+                          title="Créer un nouvel entitlement (persisté côté serveur)"
                         >
                           <Plus className="w-3.5 h-3.5" />
-                          <span>Ajouter une fonctionnalitÃ©</span>
+                          <span>Ajouter une fonctionnalité</span>
                         </button>
                       </div>
                     </div>
 
-                    {/* Create form â€” saves through the existing /api/v1/admin/features API.
+                    {/* Create form — saves through the existing /api/v1/admin/features API.
                         P3: the created row is applied by the backend immediately. */}
                     {showCreateFeatureForm && (
                       <div className="p-4 bg-slate-950 rounded-2xl border border-amber-500/30 space-y-3">
                         <div className="flex items-center justify-between">
                           <h6 className="text-xs font-bold text-amber-400 uppercase tracking-wider">
-                            Nouvelle fonctionnalitÃ© (persistÃ©e cÃ´tÃ© serveur)
+                            Nouvelle fonctionnalité (persistée côté serveur)
                           </h6>
                           <button
                             type="button"
@@ -3270,7 +3270,7 @@ ${
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
                             <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-                              ClÃ© de fonctionnalitÃ© * <span className="text-slate-500 font-normal">(unique, ex : devis:export_excel)</span>
+                              Clé de fonctionnalité * <span className="text-slate-500 font-normal">(unique, ex : devis:export_excel)</span>
                             </label>
                             <input
                               type="text"
@@ -3297,7 +3297,7 @@ ${
 
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                           <div>
-                            <label className="block text-[11px] font-semibold text-slate-300 mb-1">LibellÃ© FR <span className="text-slate-500 font-normal">(optionnel)</span></label>
+                            <label className="block text-[11px] font-semibold text-slate-300 mb-1">Libellé FR <span className="text-slate-500 font-normal">(optionnel)</span></label>
                             <input
                               type="text"
                               value={featureCreateDraft.labelFr}
@@ -3309,7 +3309,7 @@ ${
                             />
                           </div>
                           <div>
-                            <label className="block text-[11px] font-semibold text-slate-300 mb-1">LibellÃ© AR <span className="text-slate-500 font-normal">(optionnel)</span></label>
+                            <label className="block text-[11px] font-semibold text-slate-300 mb-1">Libellé AR <span className="text-slate-500 font-normal">(optionnel)</span></label>
                             <input
                               type="text"
                               dir="rtl"
@@ -3322,7 +3322,7 @@ ${
                             />
                           </div>
                           <div>
-                            <label className="block text-[11px] font-semibold text-slate-300 mb-1">LibellÃ© Derja <span className="text-slate-500 font-normal">(optionnel)</span></label>
+                            <label className="block text-[11px] font-semibold text-slate-300 mb-1">Libellé Derja <span className="text-slate-500 font-normal">(optionnel)</span></label>
                             <input
                               type="text"
                               dir="rtl"
@@ -3348,7 +3348,7 @@ ${
                             }`}
                           >
                             {featureCreateDraft.freeAccess ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
-                            <span>AccÃ¨s FREE : {featureCreateDraft.freeAccess ? 'Oui' : 'Non'}</span>
+                            <span>Accès FREE : {featureCreateDraft.freeAccess ? 'Oui' : 'Non'}</span>
                           </button>
                           <button
                             type="button"
@@ -3361,17 +3361,17 @@ ${
                             }`}
                           >
                             {featureCreateDraft.proAccess ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
-                            <span>AccÃ¨s PRO : {featureCreateDraft.proAccess ? 'Oui' : 'Non'}</span>
+                            <span>Accès PRO : {featureCreateDraft.proAccess ? 'Oui' : 'Non'}</span>
                           </button>
                           <div>
-                            <label className="block text-[11px] font-semibold text-slate-300 mb-1">Limite mensuelle <span className="text-slate-500 font-normal">(vide = illimitÃ©)</span></label>
+                            <label className="block text-[11px] font-semibold text-slate-300 mb-1">Limite mensuelle <span className="text-slate-500 font-normal">(vide = illimité)</span></label>
                             <input
                               type="number"
                               min={1}
                               value={featureCreateDraft.usageLimit}
                               onChange={(e) => setFeatureCreateDraft((d) => ({ ...d, usageLimit: e.target.value }))}
                               disabled={featureCreateSaving}
-                              placeholder="IllimitÃ©"
+                              placeholder="Illimité"
                               className="w-full bg-slate-900/60 border border-slate-850 rounded-xl px-3 py-2 text-[11px] text-slate-300 font-mono focus:border-amber-400 focus:outline-none disabled:opacity-50"
                             />
                           </div>
@@ -3384,7 +3384,7 @@ ${
                                 ? 'bg-emerald-500/10 border-emerald-400 text-emerald-400'
                                 : 'bg-slate-900/60 border-slate-850 text-slate-400 hover:text-white'
                             }`}
-                            title="Active â€” persistÃ© cÃ´tÃ© serveur"
+                            title="Active — persisté côté serveur"
                           >
                             {featureCreateDraft.isActive ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
                             <span>Active : {featureCreateDraft.isActive ? 'Oui' : 'Non'}</span>
@@ -3393,7 +3393,7 @@ ${
 
                         <div className="flex items-center justify-between gap-3 pt-1">
                           <span className="text-[10px] text-slate-500">
-                            EnregistrÃ© dans <code className="text-slate-400 font-mono">feature_entitlements</code> via <code className="text-slate-400 font-mono">/api/v1/admin/features</code> â€” P3 : appliquÃ© immÃ©diatement par le serveur (accÃ¨s FREE/PRO, rÃ´le, limite d'usage).
+                            Enregistré dans <code className="text-slate-400 font-mono">feature_entitlements</code> via <code className="text-slate-400 font-mono">/api/v1/admin/features</code> — P3 : appliqué immédiatement par le serveur (accès FREE/PRO, rôle, limite d'usage).
                           </span>
                           <button
                             type="button"
@@ -3402,18 +3402,18 @@ ${
                             className="flex items-center gap-1.5 px-4 py-2.5 bg-amber-400 hover:bg-amber-300 text-slate-950 text-[11px] font-black rounded-xl shadow-lg shadow-amber-500/20 transition-all cursor-pointer disabled:opacity-50 shrink-0"
                           >
                             {featureCreateSaving ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Plus className="w-3.5 h-3.5" />}
-                            <span>{featureCreateSaving ? 'CrÃ©ationâ€¦' : 'CrÃ©er la fonctionnalitÃ©'}</span>
+                            <span>{featureCreateSaving ? 'Création…' : 'Créer la fonctionnalité'}</span>
                           </button>
                         </div>
                       </div>
                     )}
 
-                    {/* Phase 3 â€” control-center overview strip (pure client-side counters) */}
+                    {/* Phase 3 — control-center overview strip (pure client-side counters) */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 text-[10px] font-bold">
                       {[
                         { label: 'Total', value: featureSummary.total, cls: 'text-slate-300' },
                         { label: 'Actives', value: featureSummary.active, cls: 'text-emerald-400' },
-                        { label: 'AccÃ¨s FREE', value: featureSummary.freeAccess, cls: 'text-sky-400' },
+                        { label: 'Accès FREE', value: featureSummary.freeAccess, cls: 'text-sky-400' },
                         { label: 'PRO uniquement', value: featureSummary.proOnly, cls: 'text-amber-400' },
                         { label: 'Avec limite', value: featureSummary.limited, cls: 'text-rose-400' },
                       ].map((s) => (
@@ -3424,15 +3424,15 @@ ${
                       ))}
                     </div>
 
-                    {/* Phase 3 â€” search + display ordering (view-only: the backend
+                    {/* Phase 3 — search + display ordering (view-only: the backend
                         model has no ordering column, so this is never persisted) */}
                     <div className="flex flex-wrap items-center gap-2">
                       <input
                         type="text"
                         value={featureSearch}
                         onChange={(e) => setFeatureSearch(e.target.value)}
-                        placeholder="Rechercher une fonctionnalitÃ©â€¦"
-                        title="Filtre client (clÃ©, libellÃ©s ou scope) â€” ne modifie pas le serveur"
+                        placeholder="Rechercher une fonctionnalité…"
+                        title="Filtre client (clé, libellés ou scope) — ne modifie pas le serveur"
                         className="flex-1 min-w-[180px] bg-slate-900/60 border border-slate-850 rounded-xl px-3 py-2 text-[11px] text-slate-200 placeholder-slate-500 focus:border-amber-400 focus:outline-none"
                       />
                       <select
@@ -3442,19 +3442,19 @@ ${
                         className="bg-slate-900/60 border border-slate-850 rounded-xl px-2.5 py-2 text-[11px] text-slate-300 focus:border-amber-400 focus:outline-none cursor-pointer"
                       >
                         <option value="all">Tout</option>
-                        <option value="key">ClÃ©</option>
-                        <option value="label">LibellÃ©</option>
+                        <option value="key">Clé</option>
+                        <option value="label">Libellé</option>
                         <option value="scope">Scope</option>
                       </select>
                       <select
                         value={featureSortMode}
                         onChange={(e) => setFeatureSortMode(e.target.value as FeatureSortMode)}
-                        title="Ordre d'affichage (non persistÃ© â€” le modÃ¨le serveur n'a pas de colonne d'ordre)"
+                        title="Ordre d'affichage (non persisté — le modèle serveur n'a pas de colonne d'ordre)"
                         className="bg-slate-900/60 border border-slate-850 rounded-xl px-2.5 py-2 text-[11px] text-slate-300 focus:border-amber-400 focus:outline-none cursor-pointer"
                       >
                         {FEATURE_SORT_MODES.map((m) => (
                           <option key={m} value={m}>
-                            {m === 'key' ? 'Tri : clÃ©' : m === 'label' ? 'Tri : libellÃ©' : m === 'scope' ? 'Tri : scope' : 'Tri : statut'}
+                            {m === 'key' ? 'Tri : clé' : m === 'label' ? 'Tri : libellé' : m === 'scope' ? 'Tri : scope' : 'Tri : statut'}
                           </option>
                         ))}
                       </select>
@@ -3462,13 +3462,13 @@ ${
 
                     {featuresLoadState === 'loaded' && serverFeatures.length === 0 && (
                       <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 text-[11px] text-slate-400">
-                        Aucun entitlement retournÃ© par GET /api/v1/admin/features.
+                        Aucun entitlement retourné par GET /api/v1/admin/features.
                       </div>
                     )}
 
                     {featuresLoadState === 'loaded' && serverFeatures.length > 0 && visibleFeatures.length === 0 && (
                       <div className="p-3 rounded-xl bg-slate-900 border border-slate-800 text-[11px] text-slate-400">
-                        Aucune fonctionnalitÃ© ne correspond Ã  la recherche Â« {featureSearch} Â».
+                        Aucune fonctionnalité ne correspond à la recherche « {featureSearch} ».
                       </div>
                      )}
 
@@ -3487,12 +3487,12 @@ ${
                           {/* Top Row: isActive Toggle & Label Input & Scope Tag & Deactivate */}
                           <div className="flex items-start justify-between gap-3">
                             <div className="flex items-center gap-3 flex-1 min-w-0">
-                              {/* isActive toggle â€” persisted via POST /admin/features */}
+                              {/* isActive toggle — persisted via POST /admin/features */}
                               <button
                                 type="button"
                                 onClick={() => toggleFeatureFlag(ent, 'isActive')}
                                 disabled={saving}
-                                title={ent.isActive ? 'DÃ©sactiver cÃ´tÃ© serveur (isActive=false)' : 'RÃ©activer cÃ´tÃ© serveur (isActive=true)'}
+                                title={ent.isActive ? 'Désactiver côté serveur (isActive=false)' : 'Réactiver côté serveur (isActive=true)'}
                                 className={`p-2 rounded-lg border transition-colors cursor-pointer flex-shrink-0 disabled:opacity-50 ${
                                   ent.isActive
                                     ? 'bg-amber-400/10 border-amber-400 text-amber-400'
@@ -3510,18 +3510,18 @@ ${
                                   defaultValue={ent.labelFr ?? ''}
                                   onBlur={(e) => commitLabelFr(ent, e.target.value)}
                                   disabled={saving}
-                                  placeholder="LibellÃ© (FR)"
+                                  placeholder="Libellé (FR)"
                                   className="w-full bg-transparent text-xs font-bold text-white border-b border-transparent hover:border-slate-700 focus:border-amber-400 focus:outline-none py-0.5"
                                 />
-                                {/* Phase 3 â€” the model's other label columns (labelAr / labelDerja) */}
+                                {/* Phase 3 — the model's other label columns (labelAr / labelDerja) */}
                                 <input
                                   type="text"
                                   key={`${ent.featureKey}:labelAr:${ent.labelAr ?? ''}`}
                                   defaultValue={ent.labelAr ?? ''}
                                   onBlur={(e) => commitLabel(ent, 'labelAr', e.target.value)}
                                   disabled={saving}
-                                  placeholder="LibellÃ© (AR) â€” Ø¹Ø±Ø¨ÙŠ"
-                                  title="Colonne label_ar (varchar 200) â€” persistÃ© cÃ´tÃ© serveur"
+                                  placeholder="Libellé (AR) — عربي"
+                                  title="Colonne label_ar (varchar 200) — persisté côté serveur"
                                   className="w-full bg-transparent text-[11px] text-slate-300 border-b border-transparent hover:border-slate-700 focus:border-amber-400 focus:outline-none py-0.5"
                                 />
                                 <input
@@ -3530,8 +3530,8 @@ ${
                                   defaultValue={ent.labelDerja ?? ''}
                                   onBlur={(e) => commitLabel(ent, 'labelDerja', e.target.value)}
                                   disabled={saving}
-                                  placeholder="LibellÃ© (Derja) â€” Ø¯Ø§Ø±Ø¬Ø©"
-                                  title="Colonne label_derja (varchar 200) â€” persistÃ© cÃ´tÃ© serveur"
+                                  placeholder="Libellé (Derja) — دارجة"
+                                  title="Colonne label_derja (varchar 200) — persisté côté serveur"
                                   dir="rtl"
                                   className="w-full bg-transparent text-[11px] text-slate-400 border-b border-transparent hover:border-slate-700 focus:border-amber-400 focus:outline-none py-0.5"
                                 />
@@ -3550,7 +3550,7 @@ ${
                                 onClick={() => handleDeactivateFeature(ent)}
                                 disabled={saving}
                                 className="p-1.5 text-slate-500 hover:text-red-400 hover:bg-slate-900 rounded-lg transition-colors cursor-pointer disabled:opacity-50"
-                                title="DÃ©sactiver cÃ´tÃ© serveur (soft-delete)"
+                                title="Désactiver côté serveur (soft-delete)"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -3563,7 +3563,7 @@ ${
                               type="button"
                               onClick={() => toggleFeatureFlag(ent, 'freeAccess')}
                               disabled={saving}
-                              title="AccÃ¨s FREE â€” persistÃ© cÃ´tÃ© serveur (sans effet tant que PHASE1_ALL_FEATURES_FREE=true)"
+                              title="Accès FREE — persisté côté serveur (sans effet tant que PHASE1_ALL_FEATURES_FREE=true)"
                               className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-[11px] font-bold transition-colors cursor-pointer disabled:opacity-50 ${
                                 ent.freeAccess
                                   ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
@@ -3571,14 +3571,14 @@ ${
                               }`}
                             >
                               {ent.freeAccess ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
-                              <span>AccÃ¨s FREE : {ent.freeAccess ? 'Oui' : 'Non'}</span>
+                              <span>Accès FREE : {ent.freeAccess ? 'Oui' : 'Non'}</span>
                             </button>
 
                             <button
                               type="button"
                               onClick={() => toggleFeatureFlag(ent, 'proAccess')}
                               disabled={saving}
-                              title="AccÃ¨s PRO â€” persistÃ© cÃ´tÃ© serveur"
+                              title="Accès PRO — persisté côté serveur"
                               className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-[11px] font-bold transition-colors cursor-pointer disabled:opacity-50 ${
                                 ent.proAccess
                                   ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
@@ -3586,14 +3586,14 @@ ${
                               }`}
                             >
                               {ent.proAccess ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
-                              <span>AccÃ¨s PRO : {ent.proAccess ? 'Oui' : 'Non'}</span>
+                              <span>Accès PRO : {ent.proAccess ? 'Oui' : 'Non'}</span>
                             </button>
 
                             <select
                               value={ent.scope}
-                              onChange={(e) => void patchFeatureOnServer(ent, { scope: e.target.value }, `âœ“ Scope de "${ent.featureKey}" enregistrÃ© cÃ´tÃ© serveur (${e.target.value}).`)}
+                              onChange={(e) => void patchFeatureOnServer(ent, { scope: e.target.value }, `✓ Scope de "${ent.featureKey}" enregistré côté serveur (${e.target.value}).`)}
                               disabled={saving}
-                              title="Scope rÃ´le â€” persistÃ© cÃ´tÃ© serveur"
+                              title="Scope rôle — persisté côté serveur"
                               className="bg-slate-900/60 border border-slate-850 rounded-xl px-2.5 py-2 text-[11px] text-slate-300 focus:border-amber-400 focus:outline-none disabled:opacity-50 cursor-pointer"
                             >
                               {FEATURE_SCOPES.map(s => <option key={s} value={s}>{s}</option>)}
@@ -3607,11 +3607,11 @@ ${
                                 onChange={(e) => setUsageLimitDrafts(prev => ({ ...prev, [ent.featureKey]: e.target.value }))}
                                 onBlur={() => commitUsageLimit(ent)}
                                 disabled={saving}
-                                placeholder="IllimitÃ©"
-                                title="Limite mensuelle â€” persistÃ©e cÃ´tÃ© serveur (vide = illimitÃ©)"
+                                placeholder="Illimité"
+                                title="Limite mensuelle — persistée côté serveur (vide = illimité)"
                                 className="w-20 bg-slate-900/60 border border-slate-850 rounded-xl px-2.5 py-2 text-[11px] text-slate-300 font-mono focus:border-amber-400 focus:outline-none disabled:opacity-50"
                               />
-                              <span className="text-[10px] text-slate-500 leading-tight">/mois â€” vide = illimitÃ© (inactif en Phase 1)</span>
+                              <span className="text-[10px] text-slate-500 leading-tight">/mois — vide = illimité (inactif en Phase 1)</span>
                             </div>
                           </div>
                         </div>
@@ -3625,16 +3625,16 @@ ${
                     <div className="flex items-center justify-between mb-1">
                       <h5 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
                         <Eye className="w-4 h-4" />
-                        <span>AperÃ§u Carte Plan Pro Artisan</span>
+                        <span>Aperçu Carte Plan Pro Artisan</span>
                       </h5>
-                      <span className="text-[10px] text-slate-400">Rendu Temps RÃ©el</span>
+                      <span className="text-[10px] text-slate-400">Rendu Temps Réel</span>
                     </div>
 
                     <div className="bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 border-2 border-amber-400/80 rounded-3xl p-6 space-y-6 shadow-2xl shadow-amber-500/10 relative overflow-hidden">
                       {/* Top Ribbon */}
                       <div className="absolute top-3 right-3 px-3 py-1 bg-amber-400 text-slate-950 text-[10px] font-black uppercase rounded-full tracking-wider flex items-center gap-1">
                         <Star className="w-3 h-3 fill-slate-950" />
-                        <span>Offre RecommandÃ©e</span>
+                        <span>Offre Recommandée</span>
                       </div>
 
                       <div>
@@ -3643,7 +3643,7 @@ ${
                           <h3 className="text-lg font-black text-white">Abonnement PLAN PRO 2026</h3>
                         </div>
                         <p className="text-xs text-slate-400">
-                          Solution intÃ©grÃ©e pour artisans, entrepreneurs et chefs de chantier en Tunisie.
+                          Solution intégrée pour artisans, entrepreneurs et chefs de chantier en Tunisie.
                         </p>
                       </div>
 
@@ -3658,7 +3658,7 @@ ${
                         </span>
                       </div>
 
-                      {/* Dynamic Bullet Points List â€” sourced from /api/v1/admin/features */}
+                      {/* Dynamic Bullet Points List — sourced from /api/v1/admin/features */}
                       <div className="space-y-3 border-t border-slate-800 pt-4">
                         <h4 className="text-xs font-bold text-slate-300">Avantages Inclus dans l'Abonnement (source serveur) :</h4>
                         <ul className="space-y-2.5 text-xs">
@@ -3668,7 +3668,7 @@ ${
                               <div>
                                 <span className="font-bold block text-white">{ent.labelFr || ent.featureKey}</span>
                                 <span className="text-[11px] text-slate-400 block font-normal leading-tight">
-                                  {ent.featureKey} Â· {ent.scope} Â· {ent.usageLimit == null ? 'illimitÃ©' : `${ent.usageLimit}/mois`}
+                                  {ent.featureKey} · {ent.scope} · {ent.usageLimit == null ? 'illimité' : `${ent.usageLimit}/mois`}
                                 </span>
                               </div>
                             </li>
@@ -3705,7 +3705,7 @@ ${
                     <div className="text-2xl font-black text-amber-400 font-mono">
                       {totalDevisVolumeTnd.toLocaleString('fr-TN')} DT
                     </div>
-                    <span className="text-[11px] text-slate-400 block">CalculÃ© sur la plateforme</span>
+                    <span className="text-[11px] text-slate-400 block">Calculé sur la plateforme</span>
                   </div>
 
                   <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-1">
@@ -3721,7 +3721,7 @@ ${
                     <div className="text-2xl font-black text-sky-400 font-mono">
                       {totalDevisCount * 120} mÂ²
                     </div>
-                    <span className="text-[11px] text-slate-400 block">Superficie cumulÃ©e calculÃ©e</span>
+                    <span className="text-[11px] text-slate-400 block">Superficie cumulée calculée</span>
                   </div>
                 </div>
 
@@ -3731,12 +3731,12 @@ ${
                     <div>
                       <h4 className="text-xs font-bold text-white flex items-center gap-2">
                         <FileText className="w-4 h-4 text-amber-400" />
-                        <span>Journal RÃ©cent des Devis / Estimations GÃ©nÃ©rÃ©es</span>
+                        <span>Journal Récent des Devis / Estimations Générées</span>
                       </h4>
-                      <p className="text-[11px] text-slate-400">Historique des devis crÃ©Ã©s par les clients et artisans</p>
+                      <p className="text-[11px] text-slate-400">Historique des devis créés par les clients et artisans</p>
                     </div>
                     <span className="px-2.5 py-1 text-[10px] font-mono font-bold bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded-lg">
-                      {sampleDevisList.length} devis enregistrÃ©s
+                      {sampleDevisList.length} devis enregistrés
                     </span>
                   </div>
 
@@ -3744,7 +3744,7 @@ ${
                       <table className="w-full min-w-[560px] text-left text-xs">
                       <thead className="bg-slate-900 text-slate-400 sticky top-0 border-b border-slate-800">
                         <tr>
-                          <th className="p-3">RÃ©f / Client</th>
+                          <th className="p-3">Réf / Client</th>
                           <th className="p-3">Projet & Ouvrage</th>
                           <th className="p-3">Surface (mÂ²)</th>
                           <th className="p-3 font-mono">Total (TND)</th>
@@ -3773,7 +3773,7 @@ ${
                             </td>
                             <td className="p-3 text-right">
                               <span className="px-2.5 py-0.5 text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full inline-flex items-center gap-1">
-                                <CheckCircle2 className="w-3 h-3" /> ValidÃ©
+                                <CheckCircle2 className="w-3 h-3" /> Validé
                               </span>
                             </td>
                           </tr>
@@ -3793,7 +3793,7 @@ ${
         <div className="p-4 bg-slate-950 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500">
           <div className="flex items-center gap-1.5">
             <ShieldCheck className="w-4 h-4 text-amber-400" />
-            <span>Panneau PropriÃ©taire KONSTRIVO Technologies 2026</span>
+            <span>Panneau Propriétaire KONSTRIVO Technologies 2026</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -3804,7 +3804,7 @@ ${
                 className="px-3 py-1.5 bg-rose-950/60 hover:bg-rose-900/80 text-rose-300 border border-rose-500/40 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5"
               >
                 <LogOut className="w-3.5 h-3.5" />
-                <span>DÃ©connexion Admin</span>
+                <span>Déconnexion Admin</span>
               </button>
             )}
             <button

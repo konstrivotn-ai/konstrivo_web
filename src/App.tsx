@@ -65,7 +65,7 @@ declare global {
   }
 }
 
-/** References already saved in the local Devis history â€” fed to
+/** References already saved in the local Devis history — fed to
  *  makeDevisReference() so a NEW Devis never reuses one across reloads. */
 function collectSavedDevisReferences(): string[] {
   try {
@@ -79,7 +79,7 @@ function collectSavedDevisReferences(): string[] {
   }
 }
 
-/** Today's calendar date in Tunisia (Africa/Tunis, UTC+1, no DST) as YYYY-MM-DD â€”
+/** Today's calendar date in Tunisia (Africa/Tunis, UTC+1, no DST) as YYYY-MM-DD —
  *  used for every NEW Devis. Falls back to the device's UTC date if Intl is
  *  unavailable, so the field can never be empty. */
 function todayLocalIso(): string {
@@ -97,7 +97,7 @@ function todayLocalIso(): string {
 }
 
 /**
- * Build a fresh blank Devis document â€” used for BOTH the initial document and
+ * Build a fresh blank Devis document — used for BOTH the initial document and
  * every "Nouveau Devis". Only reference + date are regenerated on each call:
  *  - reference: makeDevisReference() guarantees a NEW DEV-<year>-XXXX that
  *    never reuses a reference already saved in the local history nor one
@@ -107,7 +107,7 @@ function todayLocalIso(): string {
  */
 function createBlankDevis(): DevisDocument {
   // NOTE: the Phase-1 registry hydration/subscription hooks live at the TOP
-  // LEVEL of App â€” hooks are illegal here (this runs inside a useState
+  // LEVEL of App — hooks are illegal here (this runs inside a useState
   // initializer and event handlers; keeping them here changes App's hook
   // order and crashes the render). Only the pure accessor is used below.
   const countryCfg = getCountryConfig('TN');
@@ -140,18 +140,18 @@ function createBlankDevis(): DevisDocument {
     timbreFiscal: countryCfg.timbreFiscalDefault,
     totalTnd: 0,
     total: 0,
-    notes: 'Devis valable 30 jours. Conditions: 50% acompte Ã  la commande, solde Ã  la livraison.',
+    notes: 'Devis valable 30 jours. Conditions: 50% acompte à la commande, solde à la livraison.',
     status: 'brouillon'
   } as DevisDocument;
 }
 
 /**
- * P2 â€” Country/Pricing: the localStorage rates entry is the LAST SYNCHRONIZED
+ * P2 — Country/Pricing: the localStorage rates entry is the LAST SYNCHRONIZED
  * price cache (written by the persistence effect in App). Those values belong to
  * the market that was active when they were written, so they may only be used as
- * a merge BASE for that SAME market. For any other market the local barÃ¨me
+ * a merge BASE for that SAME market. For any other market the local barème
  * (dev defaults; empty in production) is the base and every price comes from the
- * server for the selected market. Nothing is ever deleted or rewritten here â€”
+ * server for the selected market. Nothing is ever deleted or rewritten here —
  * the cache is only read.
  */
 function readLocalRatesBase(market: CountryCode): MaterialRate[] {
@@ -170,19 +170,19 @@ function readLocalRatesBase(market: CountryCode): MaterialRate[] {
 }
 
 /**
- * READ-PATH IDENTITY (mÃ©tier â†’ materials) â€” publish the authoritative `trade`
+ * READ-PATH IDENTITY (métier → materials) — publish the authoritative `trade`
  * and `tradeId` carried by the API price rows onto the merged rates.
  *
- * `mergeRates` (src/utils/priceLookup.ts â€” FROZEN, not modified here) already
+ * `mergeRates` (src/utils/priceLookup.ts — FROZEN, not modified here) already
  * keeps `ResolvedPrice.trade` for server-only appended rows, but a rate that
  * was matched against the local cache (Tier-1 / identity bridge) keeps its
  * possibly stale/absent `trade` and never receives `tradeId`. This read-path
  * step applies the documented server-priority rule ONE level up: when a valid
  * server row exists for a rate (same id, or the other id spelling the CSV
- * importer produces â€” `ALU-001` â†” `alu_001`), the API's `trade`/`tradeId`
+ * importer produces — `ALU-001` ↔ `alu_001`), the API's `trade`/`tradeId`
  * identity is published on it; a server row without identity never erases a
  * real existing value. Ids are never renamed, no price/unit/category value is
- * touched, and no DB/CSV write happens â€” pure input to the existing state.
+ * touched, and no DB/CSV write happens — pure input to the existing state.
  * Exported (like `applyParsedCatalog`) so the regression suite can exercise
  * the exact runtime step DB-free.
  */
@@ -192,7 +192,7 @@ export function publishServerTradeIdentity(
 ): MaterialRate[] {
   if (priceMap.size === 0) return rates;
   // Same normalization as priceLookup's identity bridge (trim + lowercase +
-  // whitespace/hyphen â†’ underscore) so a rate reached through `ALU-001` â†”
+  // whitespace/hyphen → underscore) so a rate reached through `ALU-001` ↔
   // `alu_001` is found here too. Mirrors, does not modify, priceLookup.
   const identityOf = (id: string | null | undefined): string =>
     String(id ?? '').trim().toLowerCase().replace(/[\s-]+/g, '_');
@@ -210,7 +210,7 @@ export function publishServerTradeIdentity(
     const next: MaterialRate = { ...r };
     // Server priority for the IDENTITY fields only (same rule as the price):
     // the API is the source of truth; an absent server value keeps the
-    // cached one. `trade` participates in mÃ©tier â†’ materials matching.
+    // cached one. `trade` participates in métier → materials matching.
     if (trade) next.trade = trade;
     if (tradeId) next.tradeId = tradeId;
     return next;
@@ -233,7 +233,7 @@ export default function App() {
     } catch { return 'fr'; }
   });
 
-  // i18n â€” persist selection + mirror the selected UI language onto the document.
+  // i18n — persist selection + mirror the selected UI language onto the document.
   // AR renders RTL (layout direction); FR and EN render LTR. Assistive tech gets
   // the matching locale (Arabic uses the Tunisian locale).
   useEffect(() => {
@@ -260,7 +260,7 @@ export default function App() {
   const [isOffline, setIsOffline] = useState<boolean>(false);
   const [showSyncModal, setShowSyncModal] = useState<boolean>(false);
   const [showAuthModal, setShowAuthModal] = useState<boolean>(() => {
-    // AUTH PHASE 2A STEP 5 â€” after a successful password reset the user is
+    // AUTH PHASE 2A STEP 5 — after a successful password reset the user is
     // sent back to the app with ?connexion=1 so the EXISTING login modal
     // (AuthModal, default login mode) opens automatically. The flag is
     // stripped from the URL; no token is ever part of any URL.
@@ -278,7 +278,7 @@ export default function App() {
   const [showAdminModal, setShowAdminModal] = useState<boolean>(false);
   const [showWizardModal, setShowWizardModal] = useState<boolean>(false);
 
-  // User Profile State â€” initialized empty; hydrated securely from the server
+  // User Profile State — initialized empty; hydrated securely from the server
   // session via restoreSession() (HttpOnly refresh cookie). The profile is
   // NEVER persisted to localStorage (no konstrivo_user_profile key).
   const [currentUser, setCurrentUser] = useState<UserProfile | null>(null);
@@ -361,7 +361,7 @@ export default function App() {
     if (saved) {
       try {
         // CACHE-PROOF: a material archived in the DB must not come back from the
-        // local barÃ¨me cache after a Refresh / app reopen.
+        // local barème cache after a Refresh / app reopen.
         return applyCatalogTombstones(JSON.parse(saved) as MaterialRate[]);
       } catch (e) {}
     }
@@ -370,7 +370,7 @@ export default function App() {
     return applyCatalogTombstones(DEFAULT_MARKET_RATES);
   });
 
-  // P2 â€” Country/Pricing: the LOCAL base every market's server prices are merged
+  // P2 — Country/Pricing: the LOCAL base every market's server prices are merged
   // onto. Lazy-initialized ONCE from the market-scoped cache (see
   // readLocalRatesBase) so switching country/currency replaces the previous
   // market's server layer instead of keeping stale foreign prices for every
@@ -381,7 +381,7 @@ export default function App() {
     localRatesBaseRef.current = readLocalRatesBase(country);
   }
 
-  // Step 3 â€” Server-price priority plumbing:
+  // Step 3 — Server-price priority plumbing:
   // - ratesSyncNonce: bumping it re-runs the EXISTING backend sync effect so a
   //   valid server price is re-applied on top of local/default rates right
   //   away (e.g. after "Reset rates") instead of waiting for a page reload.
@@ -392,15 +392,15 @@ export default function App() {
   const [ratesSyncNonce, setRatesSyncNonce] = useState(0);
   const skipRatesPersistRef = useRef(false);
 
-  // PHASE 1 â€” API-first country registry: hydrate from /reference/* (falls back
+  // PHASE 1 — API-first country registry: hydrate from /reference/* (falls back
   // silently to COUNTRIES_CONFIG) and re-render merged consumers on change.
-  // Top-level of App, unconditional, stable hook order â€” must NEVER live inside
+  // Top-level of App, unconditional, stable hook order — must NEVER live inside
   // createBlankDevis (that runs from a useState initializer / event handler and
-  // shifted App's hook count â†’ crash at the next useState).
+  // shifted App's hook count → crash at the next useState).
   const [countryRegistryTick, setCountryRegistryTick] = useState<number>(0);
   useEffect(() => { ensureCountryReferenceLoaded(); }, []);
   useEffect(() => subscribeCountryRegistry(() => setCountryRegistryTick((t) => t + 1)), []);
-  void countryRegistryTick; // registry merge â†’ setState â†’ App re-render
+  void countryRegistryTick; // registry merge → setState → App re-render
 
   // Métré / Trade Registry — hydrate authoritative active trades once and stay subscribed.
   useEffect(() => {
@@ -411,21 +411,21 @@ export default function App() {
     void refreshTradeRegistry();
     return unsubscribe;
   }, []);
-  // Active Devis â€” built by createBlankDevis() so the very first document and
+  // Active Devis — built by createBlankDevis() so the very first document and
   // every "Nouveau Devis" share the exact same shape (fresh reference + today's
   // local Tunisia date). Modify/load/add-item paths never touch reference/date.
   const [currentDevis, setCurrentDevis] = useState<DevisDocument>(() => createBlankDevis());
 
   // When a user session is restored and contains company info, apply it to the
   // current Devis ONLY when the Devis fields are truly empty (no user data).
-  // User's existing Devis data has priority â€” defaults are NOT placeholders
+  // User's existing Devis data has priority — defaults are NOT placeholders
   // to be overwritten; they remain fallback only when no data exists.
   useEffect(() => {
     if (!currentUser) return;
     setCurrentDevis(prev => {
       const next = { ...prev } as any;
       // Fill from currentUser when the field is empty OR still holds the
-      // built-in default (defaults are fallback, not user data) â€” never
+      // built-in default (defaults are fallback, not user data) — never
       // overwrite values the user typed or loaded themselves.
       if (isDefaultCompanyName(prev.companyName)) {
         next.companyName = currentUser.companyName || currentUser.company || prev.companyName;
@@ -473,7 +473,7 @@ export default function App() {
     }
   }, [activeTab]);
 
-  // Step 3 â€” persist rates, EXCEPT the single write right after a reset:
+  // Step 3 — persist rates, EXCEPT the single write right after a reset:
   // "Reset rates" clears the cache; re-persisting the dev defaults immediately
   // would recreate a fake "synchronized" cache that shadows real server prices.
   useEffect(() => {
@@ -490,7 +490,7 @@ export default function App() {
   // - If multiple candidates for the same materialId, pick the one with the latest `updatedAt`,
   //   then highest `version` as tiebreaker.
   // - In production, do not synthesize prices from DEFAULT_MARKET_RATES when no cache exists.
-  // Step 3 â€” SERVER PRICE PRIORITY: when a valid server price exists for a
+  // Step 3 — SERVER PRICE PRIORITY: when a valid server price exists for a
   // material, it ALWAYS wins over the localStorage-cached value for the same
   // id (see merge below). The backend is the source of truth; localStorage is
   // only an offline / last-known cache. `ratesSyncNonce` re-runs this sync
@@ -504,22 +504,22 @@ export default function App() {
         const serverPrices = (res && (res as any).data) || [];
         if (!active) return;
 
-        // Step 5 â€” build the price map keyed by LEGACY slug (materials.code),
+        // Step 5 — build the price map keyed by LEGACY slug (materials.code),
         // falling back to materialId so the same path also works in-memory.
-        // Phase D â€” use buildPriceMapWithTrade to preserve the authoritative
+        // Phase D — use buildPriceMapWithTrade to preserve the authoritative
         // trade relationship for dynamic-trade material resolution.
-        // P2 â€” the market's OFFICIAL currency is preferred when one material is
+        // P2 — the market's OFFICIAL currency is preferred when one material is
         // quoted in several currencies for the same market (no FX maths, no
         // change to the TND-based calculator).
         const priceMap = buildPriceMapWithTrade(serverPrices, findCountryConfig(country)?.defaultCurrency);
 
-        // Step 3 â€” SERVER PRICE PRIORITY merge (fallback preserved):
+        // Step 3 — SERVER PRICE PRIORITY merge (fallback preserved):
         //   Tier 1: a valid server price for a legacy slug ALWAYS wins over the
         //           local base value with the same slug.
         //   Tier 2: no valid server price for this market (offline, failed,
-        //           filtered, absent) â†’ the LOCAL base value is kept as-is.
+        //           filtered, absent) → the LOCAL base value is kept as-is.
         //   Tier 3: server-only slugs are appended so they stay visible.
-        // P2 â€” Country/Pricing: the merge ALWAYS starts from the local base of the
+        // P2 — Country/Pricing: the merge ALWAYS starts from the local base of the
         // CURRENT market (never from the previously merged array), so changing the
         // country/currency replaces the previous market's server layer instead of
         // keeping its prices for every material the new market does not quote.
@@ -530,13 +530,13 @@ export default function App() {
           setRates([]);
           return;
         }
-        // P2 â€” tag the cache with the market it was synchronized for, so a cache
+        // P2 — tag the cache with the market it was synchronized for, so a cache
         // written for another market is never reused as this market's base
         // (readLocalRatesBase). Additive key; no stored price is modified.
         try { localStorage.setItem('konstrivo_rates_market', country); } catch { /* private mode */ }
-        // READ-PATH IDENTITY â€” publish the API's authoritative trade/tradeId
+        // READ-PATH IDENTITY — publish the API's authoritative trade/tradeId
         // onto the merged rates (priceLookup stays frozen; see the helper).
-        // CACHE-PROOF â€” then drop anything the DB reports as archived. `priceMap`
+        // CACHE-PROOF — then drop anything the DB reports as archived. `priceMap`
         // keys are the refs the SERVER just served, so a material that is alive
         // again (e.g. re-imported after an archive) is automatically un-suppressed.
         setRates(applyCatalogTombstones(
@@ -550,10 +550,10 @@ export default function App() {
     return () => { active = false; };
   }, [isOffline, country, ratesSyncNonce]);
 
-  // CATALOG STATE â€” DB TRUTH ON MOUNT (source of truth for what is published).
+  // CATALOG STATE — DB TRUTH ON MOUNT (source of truth for what is published).
   // `GET /catalog/inactive-refs` reports the archived materials and deactivated
   // trades the DB no longer serves, so a Refresh / app reopen can never revive
-  // them from the local barÃ¨me cache. Fail-safe: if the endpoint is unreachable
+  // them from the local barème cache. Fail-safe: if the endpoint is unreachable
   // the persisted suppression list is kept as-is (nothing is cleared).
   useEffect(() => {
     let active = true;
@@ -605,7 +605,7 @@ export default function App() {
 
   // Restore the authenticated session on first mount using the HttpOnly
   // refresh cookie (server-validated via /users/me). The profile is never
-  // persisted client-side â€” no konstrivo_user_profile localStorage key.
+  // persisted client-side — no konstrivo_user_profile localStorage key.
   useEffect(() => {
     let active = true;
     restoreSession()
@@ -635,9 +635,9 @@ export default function App() {
   };
 
   // Split entry points for the EXISTING login/register UI (AuthModal):
-  //  - openLogin()    â†’ header "Se connecter" opens AuthModal on the login tab.
-  //  - openRegister() â†’ header "S'inscrire" opens AuthModal on the EXISTING
-  //    "CrÃ©er un compte" register tab (umbrella role picker + register call).
+  //  - openLogin()    → header "Se connecter" opens AuthModal on the login tab.
+  //  - openRegister() → header "S'inscrire" opens AuthModal on the EXISTING
+  //    "Créer un compte" register tab (umbrella role picker + register call).
   // Mon Compte (showAccountModal / AccountModal) stays untouched and is still
   // reached from the account button of a signed-in user.
   const openLogin = () => {
@@ -675,7 +675,7 @@ export default function App() {
   const handleUpdateRate = (id: string, newPrice: number) => {
     setRates(prev => {
       const next = prev.map(r => r.id === id ? { ...r, unitPriceTnd: newPrice } : r);
-      // P2 â€” the edited list is what the admin now considers correct: it becomes
+      // P2 — the edited list is what the admin now considers correct: it becomes
       // the merge base for the NEXT market sync (otherwise a later country
       // change would silently drop the edit).
       localRatesBaseRef.current = next;
@@ -691,7 +691,7 @@ export default function App() {
     setRates(next);
   };
 
-  // Step 3 â€” "Reset rates" restores the hardcoded dev barÃ¨me in memory ONLY:
+  // Step 3 — "Reset rates" restores the hardcoded dev barème in memory ONLY:
   //  - skipRatesPersistRef prevents the persistence effect from immediately
   //    re-seeding localStorage with DEFAULT_MARKET_RATES (a fake cache that
   //    would shadow real server prices).
@@ -699,8 +699,8 @@ export default function App() {
   //    re-applied on top of the defaults instead of waiting for a page reload.
   const handleResetRates = () => {
     skipRatesPersistRef.current = true;
-    // P2 â€” the reset also resets the merge base (the dev barÃ¨me in memory).
-    // CACHE-PROOF â€” the reset may not revive a material the DB archived.
+    // P2 — the reset also resets the merge base (the dev barème in memory).
+    // CACHE-PROOF — the reset may not revive a material the DB archived.
     const resetBase = applyCatalogTombstones(DEFAULT_MARKET_RATES);
     localRatesBaseRef.current = resetBase;
     setRates(resetBase);
@@ -735,7 +735,7 @@ export default function App() {
       try {
         // Local-created IDs start with 'dev-'; use them as idempotency keys when creating.
         if (devisToSave.id && devisToSave.id.startsWith('dev-')) {
-          // Phase 1 â€” explicit clientâ†’server payload mapping (reference, date,
+          // Phase 1 — explicit client→server payload mapping (reference, date,
           // status enum, numeric totals) so no user-visible field is dropped.
           const created = await createDevis(toServerDevisPayload(devisToSave) as any, devisToSave.id);
           const normalizedCreated = normalizeDevisFromServer(created, currentUser);
@@ -748,7 +748,7 @@ export default function App() {
         }
 
         // Otherwise assume this maps to a server-side record and perform optimistic update.
-        // Phase 1 â€” same mapping for the update path (plus the optimistic version).
+        // Phase 1 — same mapping for the update path (plus the optimistic version).
         const payload = {
           ...toServerDevisPayload(devisToSave),
           version: devisToSave.version ?? (devisToSave as any).expectedVersion,
@@ -759,7 +759,7 @@ export default function App() {
         setCurrentDevis(normalizedUpdated as DevisDocument);
         return;
       } catch (err) {
-        // sync failed â€” continue to save locally
+        // sync failed — continue to save locally
         // eslint-disable-next-line no-console
         console.warn('Devis sync failed, falling back to local save', err);
       }
@@ -778,8 +778,8 @@ export default function App() {
   };
 
   const handleLoadFromHistory = (dh: DevisDocument) => {
-    // Phase 1 â€” normalize on load: YYYY-MM-DD date, reference fallback,
-    // company fields (currentUser â†’ defaults), numeric coercion of totals.
+    // Phase 1 — normalize on load: YYYY-MM-DD date, reference fallback,
+    // company fields (currentUser → defaults), numeric coercion of totals.
     setCurrentDevis(normalizeDevisFromServer(dh as any, currentUser));
     setActiveTab('devis');
   };
@@ -798,14 +798,14 @@ export default function App() {
     setDevisHistory(prev => prev.filter(d => d.id !== id));
   };
 
-  // Phase 1 â€” persist a published project through the EXISTING authenticated
+  // Phase 1 — persist a published project through the EXISTING authenticated
   // endpoint (POST /api/v1/projects, guarded server-side by
   // requireFeature('projects:save')). Mirrors the Devis flow: call the API when
   // authenticated and online; otherwise the local state + localStorage save
   // (unchanged behavior) stays the only persistence, so FREE/offline works.
   const handleSaveProject = async (project: ChantierProject) => {
     if (!currentUser || isOffline) return;
-    // The endpoint rejects an empty `name` with 400 â€” the UI treats an empty
+    // The endpoint rejects an empty `name` with 400 — the UI treats an empty
     // title as "nothing to publish", so skip the call instead of provoking it.
     if (!hasPublishableProjectData(project)) return;
     try {
@@ -863,14 +863,14 @@ export default function App() {
         if (!active) return;
         setDevisHistory(prev => {
           const map = new Map<string, any>(prev.map(d => [d.id, d]));
-          // Phase 1 â€” normalize each server Devis (items attached, numeric
+          // Phase 1 — normalize each server Devis (items attached, numeric
           // totals, reference fallback, YYYY-MM-DD date, client status enum,
           // company fields) before it enters the shared history.
           for (const s of serverDevis) map.set(s.id, normalizeDevisFromServer(s, currentUser));
           return Array.from(map.values()).sort((a: any, b: any) => new Date(b.createdAt || b.date).getTime() - new Date(a.createdAt || a.date).getTime());
         });
       } catch (err) {
-        // Ignore sync failure â€” keep local history
+        // Ignore sync failure — keep local history
       }
     })();
     return () => { active = false; };
@@ -910,7 +910,7 @@ export default function App() {
             out the whole app (key resets the boundary when switching tabs). */}
         <ErrorBoundary key={activeTab} sectionName={`tab:${activeTab}`}>
         
-        {/* ðŸ  Accueil (Home) */}
+        {/* 🏠 Accueil (Home) */}
         {activeTab === 'home' && (
           <HomeTab
             onNavigate={(t) => setActiveTab(t)}
@@ -921,7 +921,7 @@ export default function App() {
           />
         )}
 
-        {/* ðŸ§® Calculateur & Outils */}
+        {/* 🧮 Calculateur & Outils */}
         {activeTab === 'calculator' && (
           <CalculatorTab
             rates={rates}
@@ -937,7 +937,7 @@ export default function App() {
           />
         )}
 
-        {/* ðŸ“ MÃ©trÃ© Workflow */}
+        {/* 📐 Métré Workflow */}
         {activeTab === 'metre_workflow' && (
           <div className="space-y-3">
             {/* PHASE 2.3-B1 — Direct / Workflow mode selector (default: Direct).
@@ -986,7 +986,7 @@ export default function App() {
             currency={currency}
           />
         )}
-        {/* ðŸ—ï¸ Projets & Chantiers */}
+        {/* 🏗️ Projets & Chantiers */}
           </div>
         )}
         {activeTab === 'projects' && (
@@ -1000,7 +1000,7 @@ export default function App() {
           />
         )}
 
-        {/* ðŸ‘· Professionnels & MarchÃ© */}
+        {/* 👷 Professionnels & Marché */}
         {activeTab === 'directory_market' && (
           <DirectoryMarketplaceTab
             artisans={artisans}
@@ -1011,7 +1011,7 @@ export default function App() {
           />
         )}
 
-        {/* ðŸ› ï¸ Services & DÃ©pannage */}
+        {/* 🛠️ Services & Dépannage */}
         {activeTab === 'services' && (
           <ServicesTab
             onNavigate={(tab, opts) => {
@@ -1042,7 +1042,7 @@ export default function App() {
           />
         )}
 
-        {/* ðŸ·ï¸ Tarifs MarchÃ© */}
+        {/* 🏷️ Tarifs Marché */}
         {activeTab === 'rates' && (
           <div className="space-y-6">
             <LivePriceIndexWidget
@@ -1065,7 +1065,7 @@ export default function App() {
           </div>
         )}
 
-        {/* ðŸ“„ Devis & Factures */}
+        {/* 📄 Devis & Factures */}
         {activeTab === 'devis' && (
           <DevisTab
             devis={currentDevis}
@@ -1083,7 +1083,7 @@ export default function App() {
           />
         )}
 
-        {/* â„¹ï¸ Ã€ Propos */}
+        {/* ℹ️ À Propos */}
         {activeTab === 'about' && (
           <AboutTab
             lang={lang}
@@ -1091,17 +1091,17 @@ export default function App() {
           />
         )}
 
-        {/* ðŸ“ž Contact & Support */}
+        {/* 📞 Contact & Support */}
         {activeTab === 'contact' && (
           <ContactTab lang={lang} />
         )}
 
-        {/* ðŸ“š Guide DTU */}
+        {/* 📚 Guide DTU */}
         {activeTab === 'knowledge' && (
           <KnowledgeTab lang={lang} />
         )}
 
-        {/* ðŸ¤– Assistant AI */}
+        {/* 🤖 Assistant AI */}
         {activeTab === 'assistant' && (
           <AiAssistantTab
             currentDevis={currentDevis}
@@ -1110,7 +1110,7 @@ export default function App() {
           />
         )}
 
-        {/* âš™ï¸ RÃ©glages */}
+        {/* ⚙️ Réglages */}
         {activeTab === 'settings' && (
           <SettingsTab
             lang={lang}
@@ -1251,9 +1251,9 @@ export default function App() {
               <span className="font-bold text-white text-xs block mb-2">Navigation Rapide</span>
               <ul className="space-y-1 text-[11px]">
                 <li><button onClick={() => setActiveTab('home')} className="hover:text-amber-400">Accueil</button></li>
-                <li><button onClick={() => setActiveTab('calculator')} className="hover:text-amber-400">Calculateur MÃ©trÃ©</button></li>
-                <li><button onClick={() => setActiveTab('maintenance')} className="hover:text-amber-400">DÃ©pannage Express</button></li>
-                <li><button onClick={() => setActiveTab('rates')} className="hover:text-amber-400">Tarifs MatÃ©riaux 2026</button></li>
+                <li><button onClick={() => setActiveTab('calculator')} className="hover:text-amber-400">Calculateur Métré</button></li>
+                <li><button onClick={() => setActiveTab('maintenance')} className="hover:text-amber-400">Dépannage Express</button></li>
+                <li><button onClick={() => setActiveTab('rates')} className="hover:text-amber-400">Tarifs Matériaux 2026</button></li>
               </ul>
             </div>
 
@@ -1262,15 +1262,15 @@ export default function App() {
               <ul className="space-y-1 text-[11px]">
                 <li><button onClick={() => setActiveTab('projects')} className="hover:text-amber-400">Gestion de Chantiers</button></li>
                 <li><button onClick={() => setActiveTab('directory_market')} className="hover:text-amber-400">Annuaire des Artisans</button></li>
-                <li><button onClick={() => setShowCatalogModal(true)} className="hover:text-amber-400">Import BarÃ¨me Fournisseur</button></li>
-                <li><button onClick={() => setActiveTab('about')} className="hover:text-amber-400">Normes DTU & Mentions LÃ©gales</button></li>
+                <li><button onClick={() => setShowCatalogModal(true)} className="hover:text-amber-400">Import Barème Fournisseur</button></li>
+                <li><button onClick={() => setActiveTab('about')} className="hover:text-amber-400">Normes DTU & Mentions Légales</button></li>
                 {currentUser?.role === 'admin' && (
                   <li>
                     <button
                       onClick={openAdminModal}
                       className="text-amber-400/80 hover:text-amber-300 font-mono text-[11px] font-bold flex items-center gap-1 mt-1 cursor-pointer"
                     >
-                      ðŸ›¡ï¸ Espace Administration
+                      🛡️ Espace Administration
                     </button>
                   </li>
                 )}
@@ -1295,8 +1295,8 @@ export default function App() {
           </div>
 
           <div className="pt-4 border-t border-slate-800/80 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-500">
-            <span>Â© 2026 KONSTRIVO. Tous droits rÃ©servÃ©s. RÃ©fÃ©rences DTU 25.41 â€¢ BarÃ¨mes actualisÃ©s.</span>
-            <span>Ã‰dition 2026.5.0 â€¢ BarÃ¨mes actualisÃ©s en temps rÃ©el</span>
+            <span>© 2026 KONSTRIVO. Tous droits réservés. Références DTU 25.41 • Barèmes actualisés.</span>
+            <span>Édition 2026.5.0 • Barèmes actualisés en temps réel</span>
           </div>
         </div>
       </footer>

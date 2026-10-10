@@ -45,112 +45,13 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({
   const [newProName, setNewProName] = useState('Artisan Plaquiste Pro');
   const [newDescription, setNewDescription] = useState('');
 
-  const showcaseProjects = [
-    {
-      id: 'proj-1',
-      title: 'Construction neuve villa contemporaine',
-      category: 'Construction',
-      location: 'Tunis • Résidentiel',
-      surface: '350 m²',
-      duration: '6 mois',
-      author: 'Mohamed Trabelsi',
-      authorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-      image: 'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1000&q=80',
-      description: 'Gros œuvre en béton armé, faux plafonds BA13 avec gorges lumineuses LED, isolation thermique par l’extérieur et finitions haut de gamme.',
-      services: ['Gros Œuvre', 'Placo BA13', 'LED', 'Isolation'],
-      budget: '185,000 TND',
-      status: 'Terminé'
-    },
-    {
-      id: 'proj-2',
-      title: 'Rénovation complète appartement standing',
-      category: 'Rénovation',
-      location: 'Ariana • Résidentiel',
-      surface: '150 m²',
-      duration: '33 jours',
-      author: 'Karim Mansour',
-      authorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80',
-      image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1000&q=80',
-      description: 'Réagencement des espaces, démolition cloisons, pose de cloisons acoustiques M48 et peinture satinée.',
-      services: ['Cloisons M48', 'Peinture', 'Revêtement'],
-      budget: '45,000 TND',
-      status: 'Terminé'
-    },
-    {
-      id: 'proj-3',
-      title: 'Faux plafond décoratif & Caissons LED',
-      category: 'Faux plafond',
-      location: 'Sousse • Résidentiel',
-      surface: '160 m²',
-      duration: '3 semaines',
-      author: 'Yassine Ben Salem',
-      authorAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80',
-      image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1000&q=80',
-      description: 'Plafonds suspendus BA13 sur fourrures F530, gorges pour rubans LED périphériques et trappes de visite magnétiques.',
-      services: ['Faux Plafond', 'Caissons LED', 'Joints'],
-      budget: '18,500 TND',
-      status: 'Terminé'
-    },
-    {
-      id: 'proj-4',
-      title: 'Isolation thermique & phonique villa',
-      category: 'Isolation',
-      location: 'La Marsa • Résidentiel',
-      surface: '280 m²',
-      duration: '2 semaines',
-      author: 'Bilel Dridi',
-      authorAvatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80',
-      image: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1000&q=80',
-      description: 'Doublage sur ossature avec laine de roche 50mm haute densité et bande résiliente sous semelle pour confort acoustique maximal.',
-      services: ['Laine de roche', 'Bande résiliente', 'Placo Phonique'],
-      budget: '26,000 TND',
-      status: 'Terminé'
-    },
-    {
-      id: 'proj-5',
-      title: 'Aménagement bureaux open-space & cloisons vitrées',
-      category: 'Aménagement',
-      location: 'Les Berges du Lac • Tertiaire',
-      surface: '420 m²',
-      duration: '4 semaines',
-      author: 'Tarak Chahed',
-      authorAvatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=200&q=80',
-      image: 'https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1000&q=80',
-      description: 'Plafond démontable 60x60 dalles acoustiques, cloisons modulaires bord à bord et passages de câbles.',
-      services: ['Plafond 60x60', 'Cloisons démontables', 'Électricité'],
-      budget: '62,000 TND',
-      status: 'Terminé'
-    },
-    {
-      id: 'proj-6',
-      title: 'Rénovation façade Aquapanel extérieur',
-      category: 'Construction',
-      location: 'Hammamet • Résidentiel',
-      surface: '190 m²',
-      duration: '2 semaines',
-      author: 'Sofiene Ben Amor',
-      authorAvatar: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=format&fit=crop&w=200&q=80',
-      image: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1000&q=80',
-      description: 'Habillage extérieur avec plaques ciment Aquapanel Knauf, trame en fibre de verre et enduit ciment hydrofuge.',
-      services: ['Aquapanel', 'Trame fibre', 'Colle ciment'],
-      budget: '34,000 TND',
-      status: 'Terminé'
-    }
-  ];
+  // Display-only: remove demo showcase from the public projects page.
+  // Real project records and the existing publish/API flow remain untouched.
+  const showcaseProjects: any[] = [];
+  void showcaseProjects;
 
-  const isProd = !!((import.meta as any).env && (import.meta as any).env.PROD);
-
-  // Use real user projects when available. In non-production fall back to local showcase demo.
-  const baseProjects = (projects && projects.length > 0)
-    ? projects
-    : (isProd ? [] : showcaseProjects);
-
-  const filteredProjectsList = baseProjects.filter((p) => {
-    const matchQuery = searchQuery === '' || p.title.toLowerCase().includes(searchQuery.toLowerCase()) || p.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchCategory = categoryFilter === 'all' || p.category.toLowerCase() === categoryFilter.toLowerCase();
-    const matchRegion = regionFilter === 'all' || p.location.toLowerCase().includes(regionFilter.toLowerCase());
-    return matchQuery && matchCategory && matchRegion;
-  });
+  const baseProjects: any[] = (projects && projects.length > 0) ? projects : [];
+  void baseProjects;
 
   const handlePublishProject = (e: React.FormEvent) => {
     e.preventDefault();
@@ -280,7 +181,7 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="w-full bg-[#0b0f17] border border-slate-700 rounded-2xl px-4 py-3 text-xs text-white focus:outline-none focus:border-amber-400"
             >
-              <option value="all">Tous les projets</option>
+              <option value="all">Toutes les catégories</option>
               <option value="Construction">Construction</option>
               <option value="Rénovation">Rénovation</option>
               <option value="Faux plafond">Faux plafond</option>
@@ -321,162 +222,7 @@ export const ProjectsTab: React.FC<ProjectsTabProps> = ({
         </div>
       </section>
 
-      {/* 3. PROJET À LA UNE (Featured Large Card from screenshot) */}
-      <section className="bg-[#131b2e] border border-slate-800 hover:border-amber-500/40 rounded-3xl overflow-hidden p-6 sm:p-8 transition-all">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          
-          {/* Large Image on Left */}
-          <div className="lg:col-span-6">
-            <div className="relative rounded-2xl overflow-hidden h-72 sm:h-96 shadow-2xl">
-              <img
-                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80"
-                alt="Rénovation & Aménagement intérieur"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute top-4 left-4 bg-amber-500 text-slate-950 font-black text-xs px-3 py-1 rounded-full shadow-lg">
-                Projet à la une
-              </div>
-            </div>
-          </div>
-
-          {/* Right Details Panel */}
-          <div className="lg:col-span-6 space-y-5">
-            <div>
-              <span className="text-xs font-bold text-amber-400 uppercase tracking-wider">Projet à la une</span>
-              <h3 className="text-2xl sm:text-3xl font-black text-white mt-1">
-                Rénovation & Aménagement intérieur
-              </h3>
-              <p className="text-xs text-slate-400 mt-1 flex items-center gap-1.5">
-                <MapPin className="w-3.5 h-3.5 text-amber-400" />
-                <span>Tunis • Résidentiel</span>
-              </p>
-            </div>
-
-            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-normal">
-              Transformation complète d'un espace résidentiel, des aménagements intérieurs avec plafonds suspendus BA13, gorges lumineuses et cloisons phoniques.
-            </p>
-
-            {/* Spec Matrix Grid from Screenshot */}
-            <div className="grid grid-cols-2 gap-3 text-xs bg-[#0b0f17] p-4 rounded-2xl border border-slate-800">
-              <div>
-                <span className="text-slate-500 block text-[11px]">Type</span>
-                <span className="text-white font-bold">Placo</span>
-              </div>
-              <div>
-                <span className="text-slate-500 block text-[11px]">Localisation</span>
-                <span className="text-white font-bold">Tunis • Résidentiel</span>
-              </div>
-              <div>
-                <span className="text-slate-500 block text-[11px]">Surface</span>
-                <span className="text-amber-400 font-mono font-bold">120 m²</span>
-              </div>
-              <div>
-                <span className="text-slate-500 block text-[11px]">Services utilisés</span>
-                <span className="text-white font-bold">Faux plafond, Cloison</span>
-              </div>
-              <div>
-                <span className="text-slate-500 block text-[11px]">Professionnel / compagnie</span>
-                <span className="text-white font-bold">Placo Déco Carthage</span>
-              </div>
-              <div>
-                <span className="text-slate-500 block text-[11px]">État d'avancement</span>
-                <span className="text-emerald-400 font-bold">Terminé</span>
-              </div>
-              <div>
-                <span className="text-slate-500 block text-[11px]">Durée</span>
-                <span className="text-white font-bold">3 semaines</span>
-              </div>
-            </div>
-
-            <div>
-                <button
-                onClick={() => setSelectedModalProject(baseProjects[0] || null)}
-                className="px-6 py-3 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-bold text-xs rounded-2xl shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2 cursor-pointer"
-              >
-                <span>Voir le projet</span>
-                <ArrowRight className="w-4 h-4 stroke-[2.5]" />
-              </button>
-            </div>
-
-          </div>
-
-        </div>
-      </section>
-
-      {/* 4. TOUS LES PROJETS (Grid from screenshot) */}
-      <section className="space-y-6">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-black text-white">Tous les projets</h2>
-          <p className="text-sm text-slate-400 mt-1">
-            Explorez les réalisations de notre communauté de professionnels.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-          {filteredProjectsList.map((p) => (
-            <div
-              key={p.id}
-              onClick={() => setSelectedModalProject(p)}
-              className="bg-[#131b2e] border border-slate-800 hover:border-amber-500/60 rounded-3xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-amber-500/10 cursor-pointer group flex flex-col justify-between"
-            >
-              {/* Photo Header */}
-              <div className="relative h-48 overflow-hidden">
-                <img
-                  src={p.image}
-                  alt={p.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#131b2e] via-transparent to-transparent" />
-                <div className="absolute top-3 left-3 bg-slate-950/80 backdrop-blur-md border border-amber-500/40 text-amber-300 text-[10px] font-bold px-2.5 py-1 rounded-full">
-                  {p.category}
-                </div>
-              </div>
-
-              {/* Body */}
-              <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="text-base font-bold text-white group-hover:text-amber-400 transition-colors line-clamp-1">
-                    {p.title}
-                  </h3>
-                  <p className="text-xs text-slate-400 mt-1 flex items-center gap-1.5">
-                    <MapPin className="w-3.5 h-3.5 text-amber-400" />
-                    <span>{p.location}</span>
-                  </p>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Surface: <span className="text-slate-300 font-bold">{p.surface}</span> • {p.duration}
-                  </p>
-                </div>
-
-                <div className="pt-3 border-t border-slate-800/80 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <img
-                      src={p.authorAvatar}
-                      alt={p.author}
-                      className="w-6 h-6 rounded-full object-cover border border-amber-500/40"
-                    />
-                    <span className="text-xs text-slate-300 font-medium truncate max-w-[120px]">{p.author}</span>
-                  </div>
-                  <ArrowRight className="w-4 h-4 text-amber-400 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 5. STATS BAR (Catégories | Régions) */}
-      <section className="bg-[#131b2e] border border-slate-800 rounded-3xl p-6 sm:p-8">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 text-center">
-          <div>
-            <span className="text-3xl font-black text-amber-400 font-mono block">12</span>
-            <span className="text-xs text-slate-400 mt-1 block">Catégories</span>
-          </div>
-          <div>
-            <span className="text-3xl font-black text-white font-mono block">24</span>
-            <span className="text-xs text-slate-400 mt-1 block">Régions</span>
-          </div>
-        </div>
-      </section>
+      {/* Public demo projects and their demo statistics removed (display-only). */}
 
       {/* 6. BOTTOM CTA: Un projet vous inspire ? */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6">

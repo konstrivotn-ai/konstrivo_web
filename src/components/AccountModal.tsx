@@ -229,10 +229,10 @@ export const AccountModal: FC<AccountModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 bg-black/70 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[100] flex items-start sm:items-center justify-center overflow-y-auto overscroll-contain p-3 sm:p-6 bg-black/70 backdrop-blur-sm">
       {/* Same scroll container as before (max-h-[90vh] overflow-y-auto): only the
           header becomes sticky inside it, so no behaviour change in scrolling. */}
-      <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+      <div className="bg-slate-900 rounded-2xl border border-slate-800 shadow-2xl w-full max-w-4xl max-h-[calc(100dvh-1.5rem)] sm:max-h-[90vh] overflow-y-auto overscroll-contain">
         <div className="sticky top-0 z-20 flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-800 bg-slate-900/95 backdrop-blur-sm">
           <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-600 to-blue-500 ring-1 ring-blue-400/30 shadow-lg shadow-blue-600/20 flex items-center justify-center shrink-0">
