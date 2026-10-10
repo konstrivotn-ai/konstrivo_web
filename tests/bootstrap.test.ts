@@ -58,10 +58,9 @@ export async function runBootstrapTests() {
       process.env.ADMIN_EMAIL = 'prod-local-db@test.tn';
       process.env.ADMIN_PASSWORD = 'longpasswordprod001'; // >=16
       process.env.ADMIN_BOOTSTRAP = '1';
-      // The test runner is deliberately fail-closed; explicit force is required
-      // for this test-only bootstrap. Non-harness local DB behavior is covered by
-      // evaluateBootstrapGuard's pure unit test.
-      process.env.ADMIN_BOOTSTRAP_FORCE = '1';
+      // The test runner is deliberately fail-closed. First prove that a local URL
+      // cannot bypass the harness guard, then explicitly opt in for this isolated test.
+      delete process.env.ADMIN_BOOTSTRAP_FORCE;
       process.env.DATABASE_URL = 'postgres://localhost:5432/testdb';
 
       try { delete require.cache[require.resolve('../server/bootstrap')]; } catch {}
@@ -69,9 +68,13 @@ export async function runBootstrapTests() {
 
       const { bootstrapAdmin } = await import('../server/bootstrap');
       await bootstrapAdmin();
+      const blocked = await apiRequest(ctx.server!.baseUrl, 'POST', '/api/v1/auth/login', { body: { email: 'prod-local-db@test.tn', password: 'longpasswordprod001' } });
+      ok([401, 404, 400].includes(blocked.status), `expected harness bootstrap to be refused without force, got ${blocked.status}`);
 
+      process.env.ADMIN_BOOTSTRAP_FORCE = '1';
+      await bootstrapAdmin();
       const res = await apiRequest(ctx.server!.baseUrl, 'POST', '/api/v1/auth/login', { body: { email: 'prod-local-db@test.tn', password: 'longpasswordprod001' } });
-      ok([200].includes(res.status), `expected login to succeed for local DB bootstrap, got ${res.status}`);
+      ok([200].includes(res.status), `expected explicit test-only force to allow bootstrap, got ${res.status}`);
     } finally {
       Object.entries(prevs).forEach(([k, v]) => { if (v === undefined) delete process.env[k]; else process.env[k] = v as string; });
     }
