@@ -225,7 +225,7 @@ test('company-specific price is NEVER replaced or de-currented by approve', () =
 test('approve de-currents the previous OFFICIAL row for the SAME market only', () => {
   resetDb();
   const mat = ensureMaterial('plaque_ba13_standard');
-  db.prices.push({ id: 'official-tn', materialId: mat.id, sourceCode: 'OFFICIAL_DEFAULT', unitPrice: '30', countryCode: 'TN', currencyCode: 'TND', isCurrent: true, companyId: null, effectiveFrom: '2026-01-01' });
+  db.prices.push({ id: 'official-tn', materialId: mat.id, sourceCode: 'OFFICIAL_DEFAULT', unitPrice: '30', countryCode: 'TN', currencyCode: 'TND', isCurrent: true, companyId: null, effectiveFrom: '2026-01-01', reviewStatus: 'published' });
   const pending = submitPendingPriceUpdate({ materialCode: 'plaque_ba13_standard', price: 36, countryCode: 'TN', currencyCode: 'TND' });
   approvePendingPriceUpdate(pending.id);
   const oldOfficial = db.prices.find(p => p.id === 'official-tn');
