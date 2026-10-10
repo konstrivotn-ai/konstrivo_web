@@ -43,7 +43,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Prepare current schema in disposable PostgreSQL only
-        run: yes | npx drizzle-kit push
+        run: npx drizzle-kit push --force
         env:
           DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
       - name: Run integration and regression tests against disposable PostgreSQL
