@@ -10,9 +10,6 @@
   - **Scope:** `server/bootstrap.ts` and its DB-free security regression test only. No production database was accessed or changed; no pricing, calculator, schema, or catalog behavior was changed.
   - **Validation status:** source changes committed on `codex/implementation-audit-fixes`; automated tests and build have **not yet been executed in this session** and remain required before merge.
 
-> Created 2026-09-21 (this file did not exist in the pre-Phase-1 backup; historical
-> entries live in `PROJECT_STATE.md`). Append-only: newest first.
-
 - **2026-10-08 — Dynamic Métré Core — Final Verification Complete:**
   - G2 real DB per-element persistence: PASS
   - G2 real DB loader: PASS
