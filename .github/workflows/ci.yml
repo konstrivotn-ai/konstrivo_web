@@ -35,6 +35,8 @@ jobs:
       NODE_ENV: test
       TEST_DATABASE_URL: postgresql://konstrivo_test:konstrivo_test@localhost:5432/konstrivo_test
       TEST_DB_CONFIRM: "1"
+      # Fixed test-only secret for production-mode configuration tests; never used in deployment.
+      JWT_SECRET: "ci-only-secret-for-tests-not-for-production-2026-10-10-32bytes"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
