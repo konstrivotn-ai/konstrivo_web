@@ -56,7 +56,7 @@ async function main() {
     assert.equal(res2.status, 200, `second import failed: ${JSON.stringify(res2.body)}`);
 
     // Re-check links count — must be exactly one for this matchKey
-    const rowsAfter = await db.select().from(materialCalcLinks).where(materialCalcLinks.materialId.eq(materialId));
+    const rowsAfter = await db.select().from(materialCalcLinks).where(eq(materialCalcLinks.materialId, materialId));
     const distinct = new Map(rowsAfter.map((r: any) => [r.matchKey + '|' + r.materialId, r]));
     assert.equal(distinct.size, 1, `expected exactly one distinct material_calc_links row, got ${distinct.size}`);
 
