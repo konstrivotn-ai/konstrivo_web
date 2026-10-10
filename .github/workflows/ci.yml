@@ -16,7 +16,25 @@ concurrency:
 jobs:
   test-and-build:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: konstrivo_test
+          POSTGRES_PASSWORD: konstrivo_test
+          POSTGRES_DB: konstrivo_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U konstrivo_test -d konstrivo_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      NODE_ENV: test
+      TEST_DATABASE_URL: postgresql://konstrivo_test:konstrivo_test@localhost:5432/konstrivo_test
+      TEST_DB_CONFIRM: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -24,6 +42,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm test
-      - run: npm run lint
-      - run: npm run build
+      - name: Run integration and regression tests against disposable PostgreSQL
+        run: npm test
+      - name: Type-check
+        run: npm run lint
+      - name: Build web and server bundles
+        run: npm run build
