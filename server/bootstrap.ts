@@ -33,7 +33,7 @@ export function isLocalDatabaseUrl(databaseUrl: string | undefined): boolean {
   // `127.0.0.1` must never be classified as a trusted local database.
   try {
     const parsed = new URL(databaseUrl);
-    const hostname = parsed.hostname.toLowerCase().replace(/^\\[|\\]$/g, '');
+    const hostname = parsed.hostname.toLowerCase().replace('[', '').replace(']', '');
     return LOCAL_DB_HOSTS.includes(hostname);
   } catch {
     // Malformed/driver-specific URLs fail closed: they are not assumed local.
