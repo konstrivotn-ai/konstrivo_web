@@ -30,7 +30,7 @@ import { dirFor } from './i18n';
 
 import { 
   Language, RegionTunisia, MaterialRate, DevisDocument, DevisItem,
-  CountryCode, CurrencyCode, UnitSystem, ChantierProject, ArtisanDirectoryItem,
+  CountryCode, CurrencyCode, UnitSystem, Trade, ChantierProject, ArtisanDirectoryItem,
   MarketProduct, MaintenanceTicket, UserProfile
 } from './types';
 import { DEFAULT_MARKET_RATES } from './data/marketRates';
