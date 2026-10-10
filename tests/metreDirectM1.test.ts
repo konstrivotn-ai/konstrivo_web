@@ -82,7 +82,7 @@ test('4. invalid override returns engine error, never invented', () => {
     element: porte, dims,
     overrides: { openings: { enabled: true, items: [{ areaM2: -5 }] } },
   });
-  if (over.ok) throw new Error('Expected invalid openings override to fail');
+  if (!('error' in over)) throw new Error('Expected invalid openings override to fail');
   assert.strictEqual(over.error, 'invalid_openings');
 });
 
