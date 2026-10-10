@@ -203,3 +203,13 @@
 - Added Global Catalog repositories + import preview/commit + admin review workflow endpoints.
 - Added validation helpers and DB-level pagination for global product listing.
 - IMPORTANT: materials/material_prices, calculator formulas, and existing APIs remain unchanged.
+
+
+## 2026-10-10 — Read-only review follow-up and CI reliability fixes
+- Hardened local-database URL detection in `server/bootstrap.ts`: parse the URL and compare the hostname exactly rather than searching the entire URL string; invalid URLs fail closed.
+- Added regression cases for misleading host/user-info strings, malformed URLs, loopback hosts and IPv6 loopback in `tests/testProductionIsolation.test.ts`.
+- Updated isolated CI database setup to create `uuid-ossp`, push the schema and seed only the test database; exported the feature schema barrel so feature tables are included.
+- Corrected TypeScript/test issues in the migration runner, trade types, import/calculator-link test, metre union narrowing, price update fixtures/assertions and local Cloudflare worker type declarations.
+- Website CI run **38017243875** passed tests, TypeScript and build on the audit branch.
+- No production database was used by the CI database workflow. No calculator formulas were intentionally changed.
+- Remaining integration gap: Android CloudApiClient has not yet been wired into app state/Room sync, and a live API endpoint has not been verified. Do not describe cross-platform sync as complete.
