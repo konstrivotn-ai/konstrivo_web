@@ -170,8 +170,17 @@ export async function runAuthTests() {
     // bootstrap works (no hardcoded admin secrets in source code).
     process.env.ADMIN_EMAIL = 'admin@test.tn';
     process.env.ADMIN_PASSWORD = 'bootstrap-admin-pass-2026';
-    const { bootstrapAdmin } = await import('../server/bootstrap');
-    await bootstrapAdmin();
+    // This suite runs inside the guarded test harness, so explicitly opt in to
+    // the test-only bootstrap path against TEST_DATABASE_URL.
+    const previousForce = process.env.ADMIN_BOOTSTRAP_FORCE;
+    process.env.ADMIN_BOOTSTRAP_FORCE = '1';
+    try {
+      const { bootstrapAdmin } = await import('../server/bootstrap');
+      await bootstrapAdmin();
+    } finally {
+      if (previousForce === undefined) delete process.env.ADMIN_BOOTSTRAP_FORCE;
+      else process.env.ADMIN_BOOTSTRAP_FORCE = previousForce;
+    }
 
     const res = await apiRequest(ctx.server!.baseUrl, 'POST', '/api/v1/auth/login', {
       body: { email: 'admin@test.tn', password: 'bootstrap-admin-pass-2026' },
@@ -189,11 +198,18 @@ export async function runAuthTests() {
   });
 
   await test('Phase 1.1: admin bootstrap is idempotent → no duplicate admin', async () => {
-    const { bootstrapAdmin } = await import('../server/bootstrap');
-    await bootstrapAdmin(); // second call must be a safe no-op
-    const { userRepository } = await import('../server/repositories/userRepository');
-    const admin = await userRepository.findByEmail('admin@test.tn');
-    ok(!!admin, 'admin must still exist after repeated bootstrap');
-    assertEq(admin!.role, 'admin');
+    const previousForce = process.env.ADMIN_BOOTSTRAP_FORCE;
+    process.env.ADMIN_BOOTSTRAP_FORCE = '1';
+    try {
+      const { bootstrapAdmin } = await import('../server/bootstrap');
+      await bootstrapAdmin(); // second call must be a safe no-op
+      const { userRepository } = await import('../server/repositories/userRepository');
+      const admin = await userRepository.findByEmail('admin@test.tn');
+      ok(!!admin, 'admin must still exist after repeated bootstrap');
+      assertEq(admin!.role, 'admin');
+    } finally {
+      if (previousForce === undefined) delete process.env.ADMIN_BOOTSTRAP_FORCE;
+      else process.env.ADMIN_BOOTSTRAP_FORCE = previousForce;
+    }
   });
 }

@@ -1,6 +1,7 @@
 import { startTestServer, apiRequest } from './setup';
 import { strict as assert } from 'assert';
 import { getDatabase } from '../server/db/client';
+import { eq } from 'drizzle-orm';
 
 async function main() {
   process.env.NODE_ENV = process.env.NODE_ENV || 'test';
@@ -45,7 +46,7 @@ async function main() {
     const db = await getDatabase();
     if (!db) throw new Error('Database not available');
     const { materialCalcLinks } = await import('../server/db/schema/calculator');
-    const rows = await db.select().from(materialCalcLinks).where(materialCalcLinks.materialId.eq(materialId));
+    const rows = await db.select().from(materialCalcLinks).where(eq(materialCalcLinks.materialId, materialId));
     assert.ok(rows.length >= 1, 'expected at least one material_calc_links row');
     const link = rows[0];
     assert.ok(link.slotCode === 'placo_board' || !!link.ruleCode, 'expected slotCode or ruleCode present');
@@ -55,7 +56,7 @@ async function main() {
     assert.equal(res2.status, 200, `second import failed: ${JSON.stringify(res2.body)}`);
 
     // Re-check links count — must be exactly one for this matchKey
-    const rowsAfter = await db.select().from(materialCalcLinks).where(materialCalcLinks.materialId.eq(materialId));
+    const rowsAfter = await db.select().from(materialCalcLinks).where(eq(materialCalcLinks.materialId, materialId));
     const distinct = new Map(rowsAfter.map((r: any) => [r.matchKey + '|' + r.materialId, r]));
     assert.equal(distinct.size, 1, `expected exactly one distinct material_calc_links row, got ${distinct.size}`);
 

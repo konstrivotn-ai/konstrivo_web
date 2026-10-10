@@ -1,0 +1,63 @@
+name: Web CI
+
+on:
+  push:
+    branches: [main, "codex/**"]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: web-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: konstrivo_test
+          POSTGRES_PASSWORD: konstrivo_test
+          POSTGRES_DB: konstrivo_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U konstrivo_test -d konstrivo_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      NODE_ENV: test
+      TEST_DATABASE_URL: postgresql://konstrivo_test:konstrivo_test@localhost:5432/konstrivo_test
+      TEST_DB_CONFIRM: "1"
+      # Fixed test-only secret for production-mode configuration tests; never used in deployment.
+      JWT_SECRET: "ci-only-secret-for-tests-not-for-production-2026-10-10-32bytes"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Enable UUID extension in disposable PostgreSQL
+        run: psql "$TEST_DATABASE_URL" -v ON_ERROR_STOP=1 -c 'CREATE EXTENSION IF NOT EXISTS "uuid-ossp";'
+      - name: Prepare current schema in disposable PostgreSQL only
+        run: npx drizzle-kit push --force
+        env:
+          DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
+      - name: Seed canonical catalog into disposable PostgreSQL only
+        run: npm run db:seed
+        env:
+          NODE_ENV: development
+          DATABASE_URL: ${{ env.TEST_DATABASE_URL }}
+      - name: Run integration and regression tests against disposable PostgreSQL
+        run: npm test
+      - name: Type-check
+        run: npm run lint
+      - name: Build web and server bundles
+        run: npm run build

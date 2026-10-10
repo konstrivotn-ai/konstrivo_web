@@ -82,8 +82,8 @@ test('4. invalid override returns engine error, never invented', () => {
     element: porte, dims,
     overrides: { openings: { enabled: true, items: [{ areaM2: -5 }] } },
   });
-  assert.ok(!over.ok);
-  assert.ok(!over.ok && over.error === 'invalid_openings');
+  if (!('error' in over)) throw new Error('Expected invalid openings override to fail');
+  assert.strictEqual(over.error, 'invalid_openings');
 });
 
 test('5. layers=1 and disabled/empty openings stay neutral', () => {
@@ -277,7 +277,7 @@ test('17. M1-4/H: component wires effective element downstream', () => {
 test('18. M1-4: all legacy elements byte-identical with empty overrides', () => {
   let checked = 0;
   for (const els of Object.values(METRE_ELEMENTS)) {
-    for (const el of els as Array<{ code: string; trade: string }>) {
+    for (const el of els as readonly { code: string; trade: string }[]) {
       const full = getMetreElement(el.trade, el.code)!;
       const dims: Record<string, number> = {};
       for (const d of full.dims) dims[d.key] = typeof d.default === 'number' ? d.default : 1;

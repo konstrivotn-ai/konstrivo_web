@@ -42,7 +42,7 @@ export async function runBootstrapTests() {
     }
   });
 
-  await test('production + localhost DB + ADMIN_BOOTSTRAP=1 does NOT require ADMIN_BOOTSTRAP_FORCE', async () => {
+  await test('test harness requires ADMIN_BOOTSTRAP_FORCE even with localhost DB', async () => {
     const prevs = {
       NODE_ENV: process.env.NODE_ENV,
       JWT_SECRET: process.env.JWT_SECRET,
@@ -58,6 +58,8 @@ export async function runBootstrapTests() {
       process.env.ADMIN_EMAIL = 'prod-local-db@test.tn';
       process.env.ADMIN_PASSWORD = 'longpasswordprod001'; // >=16
       process.env.ADMIN_BOOTSTRAP = '1';
+      // The test runner is deliberately fail-closed. First prove that a local URL
+      // cannot bypass the harness guard, then explicitly opt in for this isolated test.
       delete process.env.ADMIN_BOOTSTRAP_FORCE;
       process.env.DATABASE_URL = 'postgres://localhost:5432/testdb';
 
@@ -66,9 +68,13 @@ export async function runBootstrapTests() {
 
       const { bootstrapAdmin } = await import('../server/bootstrap');
       await bootstrapAdmin();
+      const blocked = await apiRequest(ctx.server!.baseUrl, 'POST', '/api/v1/auth/login', { body: { email: 'prod-local-db@test.tn', password: 'longpasswordprod001' } });
+      ok([401, 404, 400].includes(blocked.status), `expected harness bootstrap to be refused without force, got ${blocked.status}`);
 
+      process.env.ADMIN_BOOTSTRAP_FORCE = '1';
+      await bootstrapAdmin();
       const res = await apiRequest(ctx.server!.baseUrl, 'POST', '/api/v1/auth/login', { body: { email: 'prod-local-db@test.tn', password: 'longpasswordprod001' } });
-      ok([200].includes(res.status), `expected login to succeed for local DB bootstrap, got ${res.status}`);
+      ok([200].includes(res.status), `expected explicit test-only force to allow bootstrap, got ${res.status}`);
     } finally {
       Object.entries(prevs).forEach(([k, v]) => { if (v === undefined) delete process.env[k]; else process.env[k] = v as string; });
     }

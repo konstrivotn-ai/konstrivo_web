@@ -170,7 +170,7 @@ test('FR remains isolated from TN and from MY', () => {
 test('approved official row does not turn into a duplicate pending row', () => {
   resetDb();
   const mat = ensureMaterial('plaque_ba13_standard');
-  const official = { id: 'official-tn', materialId: mat.id, sourceCode: 'OFFICIAL_DEFAULT', unitPrice: '30', countryCode: 'TN', currencyCode: 'TND', isCurrent: true, companyId: null, effectiveFrom: '2026-08-01' };
+  const official = { id: 'official-tn', materialId: mat.id, sourceCode: 'OFFICIAL_DEFAULT', unitPrice: '30', countryCode: 'TN', currencyCode: 'TND', isCurrent: true, companyId: null, effectiveFrom: '2026-08-01', reviewStatus: 'published' as const };
   db.prices.push(official);
   submitPendingPriceUpdate({ materialCode: 'plaque_ba13_standard', price: 30, countryCode: 'TN', currencyCode: 'TND', effectiveFrom: '2026-08-01' });
   const pendingRows = db.prices.filter(p => p.sourceCode === SUPPLIER_SUBMITTED && p.materialId === mat.id && p.countryCode === 'TN' && p.currencyCode === 'TND');
@@ -180,7 +180,7 @@ test('approved official row does not turn into a duplicate pending row', () => {
 test('company-specific pending rows are never merged with public pending rows', () => {
   resetDb();
   const mat = ensureMaterial('plaque_ba13_standard');
-  db.prices.push({ id: 'company-price', materialId: mat.id, sourceCode: 'CUSTOM', unitPrice: '40', countryCode: 'TN', currencyCode: 'TND', isCurrent: true, companyId: 'company-123', effectiveFrom: '2026-08-01' });
+  db.prices.push({ id: 'company-price', materialId: mat.id, sourceCode: 'CUSTOM', unitPrice: '40', countryCode: 'TN', currencyCode: 'TND', isCurrent: true, companyId: 'company-123', effectiveFrom: '2026-08-01', reviewStatus: 'published' });
   submitPendingPriceUpdate({ materialCode: 'plaque_ba13_standard', price: 42, countryCode: 'TN', currencyCode: 'TND', effectiveFrom: '2026-08-01' });
   const pendingRows = db.prices.filter(p => p.sourceCode === SUPPLIER_SUBMITTED && p.companyId === null && p.materialId === mat.id && p.countryCode === 'TN' && p.currencyCode === 'TND');
   assert.equal(pendingRows.length, 1, 'public pending rows remain independent from company-specific price rows');
@@ -199,7 +199,7 @@ test('approve promotes the pending row to the approved official current price', 
 test('approving FR does NOT change TN (market isolation)', () => {
   resetDb();
   const mat = ensureMaterial('plaque_ba13_standard');
-  db.prices.push({ id: 'official-tn', materialId: mat.id, sourceCode: 'OFFICIAL_DEFAULT', unitPrice: '30', countryCode: 'TN', currencyCode: 'TND', isCurrent: true, companyId: null, effectiveFrom: '2026-01-01' });
+  db.prices.push({ id: 'official-tn', materialId: mat.id, sourceCode: 'OFFICIAL_DEFAULT', unitPrice: '30', countryCode: 'TN', currencyCode: 'TND', isCurrent: true, companyId: null, effectiveFrom: '2026-01-01', reviewStatus: 'published' });
   const frPending = submitPendingPriceUpdate({ materialCode: 'plaque_ba13_standard', price: 50, countryCode: 'FR', currencyCode: 'EUR' });
   approvePendingPriceUpdate(frPending.id);
   const tnRow = db.prices.find(p => p.id === 'official-tn');
@@ -213,7 +213,7 @@ test('approving FR does NOT change TN (market isolation)', () => {
 test('company-specific price is NEVER replaced or de-currented by approve', () => {
   resetDb();
   const mat = ensureMaterial('plaque_ba13_standard');
-  db.prices.push({ id: 'company-abc', materialId: mat.id, sourceCode: 'CUSTOM', unitPrice: '99.000', countryCode: 'TN', currencyCode: 'TND', isCurrent: true, companyId: 'company-abc', effectiveFrom: '2026-01-01' });
+  db.prices.push({ id: 'company-abc', materialId: mat.id, sourceCode: 'CUSTOM', unitPrice: '99.000', countryCode: 'TN', currencyCode: 'TND', isCurrent: true, companyId: 'company-abc', effectiveFrom: '2026-01-01', reviewStatus: 'published' });
   const pending = submitPendingPriceUpdate({ materialCode: 'plaque_ba13_standard', price: 40 });
   approvePendingPriceUpdate(pending.id);
   const companyPrice = db.prices.find(p => p.companyId === 'company-abc');
@@ -225,7 +225,7 @@ test('company-specific price is NEVER replaced or de-currented by approve', () =
 test('approve de-currents the previous OFFICIAL row for the SAME market only', () => {
   resetDb();
   const mat = ensureMaterial('plaque_ba13_standard');
-  db.prices.push({ id: 'official-tn', materialId: mat.id, sourceCode: 'OFFICIAL_DEFAULT', unitPrice: '30', countryCode: 'TN', currencyCode: 'TND', isCurrent: true, companyId: null, effectiveFrom: '2026-01-01' });
+  db.prices.push({ id: 'official-tn', materialId: mat.id, sourceCode: 'OFFICIAL_DEFAULT', unitPrice: '30', countryCode: 'TN', currencyCode: 'TND', isCurrent: true, companyId: null, effectiveFrom: '2026-01-01', reviewStatus: 'published' });
   const pending = submitPendingPriceUpdate({ materialCode: 'plaque_ba13_standard', price: 36, countryCode: 'TN', currencyCode: 'TND' });
   approvePendingPriceUpdate(pending.id);
   const oldOfficial = db.prices.find(p => p.id === 'official-tn');
@@ -260,7 +260,7 @@ test('rejected rows cannot be published directly and carry rejection metadata', 
   const rejected = { ...row, reviewStatus: 'rejected', rejectedBy: 'admin-2', rejectedAt: '2026-09-20T00:10:00Z', rejectionReason: 'price outside accepted band' };
   assert.equal(rejected.reviewStatus, 'rejected');
   assert.equal(rejected.rejectionReason, 'price outside accepted band');
-  assert.equal(rejected.reviewStatus === 'published', false, 'rejected rows must not become published');
+  assert.notEqual(rejected.reviewStatus, 'published', 'rejected rows must not become published');
 });
 
 test('calculator only sees published rows and never pending reviews', () => {

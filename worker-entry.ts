@@ -75,6 +75,15 @@ const CONTAINER_ENV_KEYS = [
 
 type ContainerEnvKey = (typeof CONTAINER_ENV_KEYS)[number];
 
+// Keep this adapter type-checkable without adding a second global Cloudflare type package.
+// Derive the namespace shape from the installed Containers API and model the asset binding
+// structurally; runtime bindings remain supplied by Wrangler.
+type DurableObjectNamespace = Parameters<typeof getContainer>[0];
+type Fetcher = { fetch(request: Request): Promise<Response> };
+type ExportedHandler<Env> = {
+  fetch(request: Request, env: Env, ctx?: unknown): Response | Promise<Response>;
+};
+
 /** Bindings consumed by the router (additive only — no app logic here). */
 type WorkerBindings = {
   /** Durable Object binding that backs the Container class (declared in wrangler.jsonc). */

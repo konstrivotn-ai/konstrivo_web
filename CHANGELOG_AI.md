@@ -3,6 +3,13 @@
 > Created 2026-09-21 (this file did not exist in the pre-Phase-1 backup; historical
 > entries live in `PROJECT_STATE.md`). Append-only: newest first.
 
+- **2026-10-10 — Security audit fix: exact local database host detection (verification pending):**
+  - **Finding:** `isLocalDatabaseUrl()` used substring matching against the full database URL. A remote hostname such as `localhost.attacker.example`, or a username containing `127.0.0.1`, could be misclassified as local and bypass the remote-database bootstrap opt-in guard.
+  - **Fix:** parse the URL and compare the normalized hostname against the explicit local-host allowlist; malformed URLs fail closed as non-local.
+  - **Regression coverage added:** `tests/testProductionIsolation.test.ts` now checks deceptive remote hostnames, username spoofing, malformed strings, and legitimate local IPv4/IPv6/localhost values.
+  - **Scope:** `server/bootstrap.ts` and its DB-free security regression test only. No production database was accessed or changed; no pricing, calculator, schema, or catalog behavior was changed.
+  - **Validation status:** source changes committed on `codex/implementation-audit-fixes`; automated tests and build have **not yet been executed in this session** and remain required before merge.
+
 - **2026-10-08 — Dynamic Métré Core — Final Verification Complete:**
   - G2 real DB per-element persistence: PASS
   - G2 real DB loader: PASS
@@ -196,3 +203,13 @@
 - Added Global Catalog repositories + import preview/commit + admin review workflow endpoints.
 - Added validation helpers and DB-level pagination for global product listing.
 - IMPORTANT: materials/material_prices, calculator formulas, and existing APIs remain unchanged.
+
+
+## 2026-10-10 — Read-only review follow-up and CI reliability fixes
+- Hardened local-database URL detection in `server/bootstrap.ts`: parse the URL and compare the hostname exactly rather than searching the entire URL string; invalid URLs fail closed.
+- Added regression cases for misleading host/user-info strings, malformed URLs, loopback hosts and IPv6 loopback in `tests/testProductionIsolation.test.ts`.
+- Updated isolated CI database setup to create `uuid-ossp`, push the schema and seed only the test database; exported the feature schema barrel so feature tables are included.
+- Corrected TypeScript/test issues in the migration runner, trade types, import/calculator-link test, metre union narrowing, price update fixtures/assertions and local Cloudflare worker type declarations.
+- Website CI run **38017243875** passed tests, TypeScript and build on the audit branch.
+- No production database was used by the CI database workflow. No calculator formulas were intentionally changed.
+- Remaining integration gap: Android CloudApiClient has not yet been wired into app state/Room sync, and a live API endpoint has not been verified. Do not describe cross-platform sync as complete.

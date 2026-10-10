@@ -51,6 +51,7 @@ export interface Trade {
   code: string;
   labelFr: string;
   labelAr?: string;
+  labelDerja?: string;
   labelEn?: string;
   icon?: string;
   sortOrder: number;
