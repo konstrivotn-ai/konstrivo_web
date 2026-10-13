@@ -25,11 +25,11 @@ function isoOf(value: any): string | undefined {
   return Number.isNaN(parsed.getTime()) ? undefined : parsed.toISOString();
 }
 
-export async function pullSync(filter: any) {
+export async function pullSync(filter: any, userId?: string) {
   const db = await getDatabase();
   if (!db) return [];
   let rows = await db.select().from(syncOperations);
-  rows = rows.filter((r: any) => r.syncStatus !== 'deleted');
+  rows = rows.filter((r: any) => r.syncStatus !== 'deleted' && (!userId || r.userId === userId));
   // Audit fix: `serverTimestamp` may be a Date (postgres-js timestamptz),
   // so compare via numeric epoch instead of string `localeCompare`.
   if (filter.since) {
@@ -48,7 +48,7 @@ export async function pushSync(userId: string, clientId: string, ops: any[]) {
   const now = new Date().toISOString();
 
   for (const op of ops) {
-    const existingAll = await db.select().from(syncOperations).where(sql`${syncOperations.entityType} = ${op.entityType} AND ${syncOperations.entityId} = ${op.entityId}`);
+    const existingAll = await db.select().from(syncOperations).where(sql`${syncOperations.userId} = ${userId} AND ${syncOperations.entityType} = ${op.entityType} AND ${syncOperations.entityId} = ${op.entityId}`);
     // Audit fix: idempotency (mirrors the in-memory repository, which keys by
     // op.id). `sync_operations.id` is a `uuid` column so the client op id
     // ('op_1', …) can NEVER be stored/queried there (22P02 → 500). A repeated
@@ -102,10 +102,12 @@ export async function pushSync(userId: string, clientId: string, ops: any[]) {
   return { applied, conflicts };
 }
 
-export async function findSyncByEntity(entityType: string, entityId: string) {
+export async function findSyncByEntity(entityType: string, entityId: string, userId?: string) {
   const db = await getDatabase();
   if (!db) return undefined;
-  const rows = await db.select().from(syncOperations).where(sql`${syncOperations.entityType} = ${entityType} AND ${syncOperations.entityId} = ${entityId}`);
+  const rows = await db.select().from(syncOperations).where(userId
+    ? sql`${syncOperations.userId} = ${userId} AND ${syncOperations.entityType} = ${entityType} AND ${syncOperations.entityId} = ${entityId}`
+    : sql`${syncOperations.entityType} = ${entityType} AND ${syncOperations.entityId} = ${entityId}`);
   // Audit fix: `serverTimestamp` may be a Date — sort by epoch, not localeCompare.
   const sorted = rows.sort((a: any, b: any) => tsOf(b.serverTimestamp) - tsOf(a.serverTimestamp));
   return sorted[0];

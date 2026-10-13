@@ -363,6 +363,8 @@ export type SyncStatus = 'pending' | 'applied' | 'conflict' | 'failed';
 
 export interface SyncEntry {
   id: string;
+  /** Owner of this sync record; prevents cross-account sync leakage. */
+  userId?: string;
   entityType: EntityType;
   entityId: string;
   operationType: OperationType;

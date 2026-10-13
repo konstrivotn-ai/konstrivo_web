@@ -24,10 +24,11 @@ router.post('/pull',
   async (req: AuthenticatedRequest, res: Response, next) => {
     try {
       const { since, entityTypes } = req.body || {};
+      // Sync is scoped to the authenticated account. Never return another user's records.
       const entries = await (syncRepository as any).pull({
         since,
         entityTypes: entityTypes as EntityType[] | undefined,
-      });
+      }, req.user!.uid);
       res.json({
         data: entries,
         serverTime: new Date().toISOString(),
