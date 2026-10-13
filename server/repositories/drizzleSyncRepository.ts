@@ -105,7 +105,9 @@ export async function pushSync(userId: string, clientId: string, ops: any[]) {
 export async function findSyncByEntity(entityType: string, entityId: string, userId?: string) {
   const db = await getDatabase();
   if (!db) return undefined;
-  const rows = await db.select().from(syncOperations).where(sql`${syncOperations.entityType} = ${entityType} AND ${syncOperations.entityId} = ${entityId}`);
+  const rows = await db.select().from(syncOperations).where(userId
+    ? sql`${syncOperations.userId} = ${userId} AND ${syncOperations.entityType} = ${entityType} AND ${syncOperations.entityId} = ${entityId}`
+    : sql`${syncOperations.entityType} = ${entityType} AND ${syncOperations.entityId} = ${entityId}`);
   // Audit fix: `serverTimestamp` may be a Date — sort by epoch, not localeCompare.
   const sorted = rows.sort((a: any, b: any) => tsOf(b.serverTimestamp) - tsOf(a.serverTimestamp));
   return sorted[0];
