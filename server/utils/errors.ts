@@ -14,6 +14,7 @@ export type ApiErrorCode =
   | 'PAYLOAD_TOO_LARGE'
   | 'UNSUPPORTED_MEDIA_TYPE'
   | 'VALIDATION_ERROR'
+  | 'SERVICE_UNAVAILABLE'
   | 'INTERNAL_ERROR';
 
 export class ApiError extends Error {
@@ -68,4 +69,8 @@ export function validationError(message = 'Validation error'): ApiError {
 
 export function internalError(message = 'Internal server error'): ApiError {
   return new ApiError(message, 500, 'INTERNAL_ERROR');
+}
+
+export function serviceUnavailable(message = 'Service temporarily unavailable'): ApiError {
+  return new ApiError(message, 503, 'SERVICE_UNAVAILABLE');
 }

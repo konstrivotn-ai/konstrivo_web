@@ -3,6 +3,43 @@
 > Created 2026-09-21 (this file did not exist in the pre-Phase-1 backup; historical
 > entries live in `PROJECT_STATE.md`). Append-only: newest first.
 
+- **2026-10-13 — Google sign-in backend + API health probe (additive, fail-closed):**
+  - **New endpoint:** `POST /api/v1/auth/google` accepts ONLY a Google ID token and verifies it
+    entirely server-side (RS256 signature against Google's JWKS via `node:crypto` — no new
+    dependencies; issuer; audience; expiry with 60 s leeway; `email_verified`). Nothing the
+    client sends (email/name/role) is trusted on its own.
+  - **Safe provisioning:** new accounts are created with the default public role `artisan`
+    (Google sign-in can NEVER grant admin). Google-provisioned accounts store the Google `sub`
+    inside an unusable password-hash marker (`google-oauth:sub:<sub>` — `comparePassword` fails
+    closed on it), so password login is impossible for them and a recycled email address can
+    never take over an existing account (different `sub` → 403).
+  - **No silent merging:** an existing password account is never merged with Google — the route
+    returns 409 and the user must sign in with their password.
+  - **Configuration:** `GOOGLE_AUTH_CLIENT_IDS` (comma-separated OAuth client IDs). When unset
+    the endpoint fails closed with 503 `SERVICE_UNAVAILABLE` ("not configured"). Exact external
+    configuration still required for production: create OAuth client IDs in Google Cloud Console
+    and set the secret in the deployment secret store.
+  - **New files:** `server/services/googleAuth.ts`, `tests/google_auth.test.ts`,
+    `tests/runGoogleAuthSuite.ts` (focused DB-free runner). `POST /api/v1/auth/google` is
+    registered in `tests/run.ts` (full suite) and listed in the `/api/v1` discovery document.
+  - **New endpoint:** `GET /api/v1/health` — JSON liveness/diagnostics probe (status, database
+    mode, `googleAuthConfigured`, timestamp). Previously `/api/v1/health` fell through to the
+    SPA `index.html`, making it impossible to distinguish "API up" from "static only" from the
+    outside.
+  - **Support changes:** `SERVICE_UNAVAILABLE` added to `ApiErrorCode` + `serviceUnavailable()`
+    helper in `server/utils/errors.ts`; `getGoogleAuthClientIds()` in `server/config.ts`
+    (read at call time, not cached).
+  - **Tests:** 15 Google-auth cases with locally generated RSA keys and an injected JWKS
+    fetcher (no network): provisioning, repeat sign-in without duplicates, password-login
+    impossibility, 409 password conflict, sub binding, wrong aud/iss, expired, unverified
+    email, tampered payload, garbage token, non-RS256, suspended account, unconfigured 503.
+  - **Live verification (2026-10-13):** the production API at
+    `https://konstrivo.konstrivo.blitz.cloud/api/v1/` responded **HTTP 200** with the JSON
+    discovery document and `/api/v1/materials` returned **HTTP 200** with catalogue data —
+    the previously reported HTTP 503 condition is NOT currently reproducible (a previous
+    outage likely came from the container/edge layer, not from application code; no code
+    change was needed for that).
+
 - **2026-10-10 — Security audit fix: exact local database host detection (verification pending):**
   - **Finding:** `isLocalDatabaseUrl()` used substring matching against the full database URL. A remote hostname such as `localhost.attacker.example`, or a username containing `127.0.0.1`, could be misclassified as local and bypass the remote-database bootstrap opt-in guard.
   - **Fix:** parse the URL and compare the normalized hostname against the explicit local-host allowlist; malformed URLs fail closed as non-local.

@@ -74,6 +74,7 @@ async function main() {
   console.log('═══════════════════════════════════════════\n');
 
   const { runAuthTests } = await import('./auth.test');
+  const { runGoogleAuthTests } = await import('./google_auth.test');
   const { runPhase2Tests } = await import('./phase2.test');
   const { runTestDatabaseConfigTests } = await import('./test_database_config.test');
   const { runPasswordResetRepositoryTests } = await import('./password_reset_repository.test');
@@ -107,6 +108,7 @@ async function main() {
   await runApiAuthForgotResetTests();
   await runResetPasswordPageTests();
   await runAuthTests();
+  await runGoogleAuthTests();
   await runPhase2Tests();
   await runMaterialPriceTests();
   await runTradePhase2aTests();

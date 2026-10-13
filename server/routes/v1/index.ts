@@ -27,7 +27,7 @@ import { createPaymentsRouter } from './payments';
 import { createWebhooksRouter } from './webhooks';
 import { createDefaultPaymentService, type PaymentService } from '../../services/paymentService';
 import { errorHandler } from '../../middleware/errorHandler';
-import { config } from '../../config';
+import { config, getGoogleAuthClientIds } from '../../config';
 
 // Lazy, cached PaymentService singleton for the Web API.
 // createDefaultPaymentService() fails CLOSED without Flouci credentials —
@@ -56,10 +56,12 @@ export function setupV1Router(): Router {
       environment: config.nodeEnv,
       database: config.databaseUrl ? 'postgresql' : 'in-memory',
       endpoints: [
+        'GET    /api/v1/health',
         'POST   /api/v1/auth/register',
         'POST   /api/v1/auth/login',
         'POST   /api/v1/auth/refresh',
         'POST   /api/v1/auth/logout',
+        'POST   /api/v1/auth/google',
         'GET    /api/v1/users/me',
         'GET    /api/v1/materials',
         'GET    /api/v1/materials/:id',
@@ -102,6 +104,20 @@ export function setupV1Router(): Router {
         'GET    /api/v1/admin/plans',
         'POST   /api/v1/admin/plans',
       ],
+    });
+  });
+
+  // Lightweight liveness/diagnostics probe. JSON (never the SPA fallback) so
+  // monitoring and mobile clients can distinguish "API up" from "static only".
+  router.get('/health', (_req, res) => {
+    res.json({
+      status: 'ok',
+      service: 'konstrivo-api',
+      version: 'v1',
+      environment: config.nodeEnv,
+      database: config.databaseUrl ? 'postgresql' : 'in-memory',
+      googleAuthConfigured: getGoogleAuthClientIds().length > 0,
+      time: new Date().toISOString(),
     });
   });
 

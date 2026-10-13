@@ -71,6 +71,9 @@ const CONTAINER_ENV_KEYS = [
   'RATE_LIMIT_AI_MAX',
   'RATE_LIMIT_AI_WINDOW_MS',
   'MAX_UPLOAD_BYTES',
+  // Google sign-in audiences (comma-separated OAuth client IDs) for
+  // POST /api/v1/auth/google — fail-closed (503) when unset.
+  'GOOGLE_AUTH_CLIENT_IDS',
 ] as const;
 
 type ContainerEnvKey = (typeof CONTAINER_ENV_KEYS)[number];

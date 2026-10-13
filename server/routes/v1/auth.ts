@@ -16,10 +16,14 @@ import { validateBody, isValidEmail, isValidPassword } from '../../utils/validat
 import { passwordResetService } from '../../services/passwordResetService';
 import { sendPasswordResetEmail } from '../../utils/email';
 import {
-  badRequest, unauthorized, conflict, forbidden, validationError,
+  badRequest, unauthorized, conflict, forbidden, validationError, serviceUnavailable,
 } from '../../utils/errors';
 import { User, Company, UserRole, UserTier } from '../../types';
-import { config, getPublicAppUrl, isProduction } from '../../config';
+import { config, getPublicAppUrl, isProduction, getGoogleAuthClientIds } from '../../config';
+import {
+  verifyGoogleIdToken, googleSubMatches, GOOGLE_PASSWORD_MARKER_PREFIX,
+  type GoogleIdTokenPayload,
+} from '../../services/googleAuth';
 import { setRefreshCookie, clearRefreshCookie, getCookie, REFRESH_COOKIE_NAME } from '../../utils/cookies';
 import { createLimiter } from '../../middleware/rateLimit';
 // Root cause of `GET /subscriptions/me` → 404: the default subscription has to
@@ -222,6 +226,111 @@ router.post('/refresh', createLimiter('refresh'), async (req, res, next) => {
 router.post('/logout', (_req, res) => {
   clearRefreshCookie(res);
   res.json({ ok: true });
+});
+
+// ── POST /google ────────────────────────────────────────────────────────────
+// Google sign-in / safe account provisioning.
+//
+// SECURITY:
+// - The client sends ONLY a Google ID token. Identity is verified entirely
+//   server-side (RS256 signature against Google's JWKS, issuer, audience,
+//   expiry, email_verified) — nothing supplied by the client is trusted.
+// - Existing password accounts are NEVER silently merged: the user gets a
+//   clear 409 and must sign in with their password instead.
+// - Google-provisioned accounts are bound to the Google `sub` (stored inside
+//   the unusable password-hash marker), so a recycled email address can never
+//   take over an existing account.
+// - Provisioning always creates a normal public user ('artisan'). Google
+//   sign-in can NEVER grant administrator privileges.
+router.post('/google', createLimiter('login'), async (req, res, next) => {
+  try {
+    const clientIds = getGoogleAuthClientIds();
+    if (clientIds.length === 0) {
+      throw serviceUnavailable('Google sign-in is not configured on this server.');
+    }
+
+    const idToken = req.body?.idToken;
+    if (!idToken || typeof idToken !== 'string' || idToken.length === 0) {
+      throw badRequest('Google ID token is required');
+    }
+
+    let claims: GoogleIdTokenPayload;
+    try {
+      claims = await verifyGoogleIdToken(idToken, { clientIds });
+    } catch {
+      // Never leak verification details to the client.
+      throw unauthorized('Invalid Google ID token');
+    }
+
+    const normalizedEmail = claims.email.toLowerCase().trim();
+    let user = await userRepository.findByEmail(normalizedEmail);
+    let companyId = '';
+    let created = false;
+
+    if (user) {
+      if (user.status === 'suspended') throw forbidden('Account is suspended');
+      const prefix = GOOGLE_PASSWORD_MARKER_PREFIX;
+      if (!user.passwordHash || !user.passwordHash.startsWith(prefix)) {
+        throw conflict('This email already has a KONSTRIVO password account. Please sign in with your password.');
+      }
+      const storedSub = user.passwordHash.substring(prefix.length);
+      if (!googleSubMatches(storedSub, claims.sub)) {
+        // Email recycling or account-takeover attempt — never merge.
+        throw forbidden('This Google account does not match the existing KONSTRIVO account.');
+      }
+      const memberships = await memberRepository.findByUserId(user.id);
+      companyId = memberships[0]?.companyId || '';
+    } else {
+      // Safe provisioning: a new normal user — never an administrator.
+      const role: UserRole = 'artisan';
+      const tier = ROLE_DEFAULT_TIER[role] || ('FREE' as UserTier);
+      const displayName = (claims.name ||
+        `${claims.given_name || ''} ${claims.family_name || ''}`.trim() ||
+        normalizedEmail).slice(0, 200);
+      // Unusable marker instead of a password hash: password login can never
+      // succeed for this account (comparePassword fails closed on it).
+      const passwordHash = GOOGLE_PASSWORD_MARKER_PREFIX + claims.sub;
+      user = await userRepository.create({
+        email: normalizedEmail,
+        passwordHash,
+        fullName: displayName,
+        phone: '',
+        role,
+        tier,
+        status: 'active',
+      });
+      const company = await companyRepository.create({
+        legalName: `${displayName}'s Company`.slice(0, 255),
+        tradeName: undefined,
+        countryCode: 'TN',
+        currencyCode: 'TND',
+        status: 'active',
+      });
+      companyId = company.id;
+      await memberRepository.create(user.id, company.id, role, tier, computeEntitlements(role, tier));
+      created = true;
+
+      // Same default-subscription behaviour as /register (best-effort).
+      try {
+        if (await isDatabaseAvailable()) {
+          await subscriptionRepositoryAsync.create(company.id, tier);
+        }
+      } catch { /* Non-fatal */ }
+      try {
+        if (!(config.databaseUrl && config.isProduction)) {
+          await subscriptionRepository.create(company.id, tier);
+        }
+      } catch { /* Non-fatal */ }
+    }
+
+    const { token, refreshToken } = buildToken(user, companyId);
+    setRefreshCookie(res, refreshToken);
+    res.status(created ? 201 : 200).json({
+      user: sanitizeUser(user),
+      token,
+      refreshToken,
+    });
+  } catch (err) { next(err); }
 });
 
 /**

@@ -264,6 +264,23 @@ export function hasDatabase(): boolean {
 }
 
 /**
+ * Google sign-in audiences (OAuth client IDs) accepted by
+ * `POST /api/v1/auth/google`. Read from the environment at call time (not
+ * cached) so deployments and tests can configure/inspect it dynamically.
+ *
+ * - `GOOGLE_AUTH_CLIENT_IDS` — comma-separated list of OAuth client IDs
+ *   (web client + Android server client IDs). When empty/unset the Google
+ *   sign-in endpoint fails closed with 503 "not configured".
+ */
+export function getGoogleAuthClientIds(): string[] {
+  const raw = process.env.GOOGLE_AUTH_CLIENT_IDS || '';
+  return raw
+    .split(',')
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0);
+}
+
+/**
  * Returns true only when we are in an environment we can confidently
  * identify as a development database.
  * This guards against accidentally connecting to production.

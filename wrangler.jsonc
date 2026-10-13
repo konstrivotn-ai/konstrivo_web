@@ -16,7 +16,9 @@
  * and are injected into the container by the Worker at container start (`envVars` in
  * worker-entry.ts): JWT_SECRET (>=32) · CORS_ALLOWED_ORIGINS · PUBLIC_APP_URL ·
  * ADMIN_EMAIL · ADMIN_PASSWORD · EMAILJS_* · GEMINI_API_KEY · FLOUCI_* · CIDB_API_* ·
- * DATABASE_URL. NEVER set TEST_DATABASE_URL in production (it enables the test guards).
+ * DATABASE_URL · GOOGLE_AUTH_CLIENT_IDS (optional — enables POST /api/v1/auth/google;
+ * the endpoint returns 503 "not configured" while unset).
+ * NEVER set TEST_DATABASE_URL in production (it enables the test guards).
  */
 {
   "$schema": "node_modules/wrangler/config-schema.json",
