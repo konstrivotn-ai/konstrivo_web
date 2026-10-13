@@ -93,6 +93,33 @@ export async function runSyncTests() {
     ok(res.body.serverTime);
   });
 
+  await test('sync pull never returns another authenticated user\'s records', async () => {
+    const marker = `isolation_${Date.now()}`;
+    const push = await apiRequest(ctx.server!.baseUrl, 'POST', '/api/v1/sync/push', {
+      token: ctx.freeToken,
+      body: {
+        clientId: 'isolation-client',
+        operations: [{
+          id: marker,
+          entityType: 'devis',
+          entityId: marker,
+          operationType: 'create',
+          clientVersion: 1,
+          clientTimestamp: new Date().toISOString(),
+          payload: { marker },
+        }],
+      },
+    });
+    assertEq(push.status, 200);
+    const otherAccountPull = await apiRequest(ctx.server!.baseUrl, 'POST', '/api/v1/sync/pull', {
+      token: ctx.proToken,
+      body: {},
+    });
+    assertEq(otherAccountPull.status, 200);
+    ok(!otherAccountPull.body.data.some((entry: any) => entry.entityId === marker),
+      'sync records must be isolated by authenticated user');
+  });
+
   await test('sync requires authentication → 401', async () => {
     const res = await apiRequest(ctx.server!.baseUrl, 'POST', '/api/v1/sync/pull', { body: {} });
     assertEq(res.status, 401);
